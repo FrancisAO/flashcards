@@ -14,18 +14,3 @@ Kapitel 10 Qualität
 
 # Todo
 Kapitel 5.1 - whitebox sichten der Bausteine
-
-# MVP 1
-Frontend
-- Menü
-    - Neues Deck anlegen
-    - Decks anzeigen
-    - Eine Karte einem Deck hinzufügen
-
-Backend
-- CRUD eines Decks
-- CRUD einer Karte
-
-Datenbank
-Implementierung eines regelmäßigen Backup-Mechanismus für die Datenbank-Datei
-Festlegung der Datenbankschema-Migrations-Strategie auf Flyway.
