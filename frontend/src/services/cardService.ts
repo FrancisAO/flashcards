@@ -31,3 +31,13 @@ export const getCardsByTag = async (tag: string): Promise<Card[]> => {
   const response = await axios.get(`${API_URL}/tag/${tag}`);
   return response.data;
 };
+
+export const getCardsByTags = async (tags: string[]): Promise<Card[]> => {
+  const response = await axios.post(`${API_URL}/search`, tags);
+  return response.data;
+};
+
+export const getAllTags = async (): Promise<string[]> => {
+  const response = await axios.get(`${API_URL}/tags`);
+  return response.data;
+};

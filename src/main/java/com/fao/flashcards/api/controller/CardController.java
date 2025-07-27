@@ -90,4 +90,24 @@ public class CardController {
         List<CardDTO> cards = cardService.getCardsByTag(tag);
         return ResponseEntity.ok(cards);
     }
+    
+    @GetMapping("/tags")
+    public ResponseEntity<List<String>> getAllTags() {
+        logger.info("GET /api/cards/tags - Fetching all available tags");
+        List<String> tags = cardService.getAllTags();
+        return ResponseEntity.ok(tags);
+    }
+    
+    @PostMapping("/search")
+    public ResponseEntity<List<CardDTO>> getCardsByTags(@RequestBody List<String> tags) {
+        logger.info("POST /api/cards/search - Fetching cards by tags: {}", tags);
+        
+        if (tags == null) {
+            logger.warn("Invalid tags list: null");
+            return ResponseEntity.badRequest().build();
+        }
+        
+        List<CardDTO> cards = cardService.getCardsByTags(tags);
+        return ResponseEntity.ok(cards);
+    }
 }

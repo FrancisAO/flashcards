@@ -8,6 +8,7 @@ import DeckDetail from './components/DeckDetail';
 import CreateDeck from './components/CreateDeck';
 import CardList from './components/CardList';
 import CreateCard from './components/CreateCard';
+import SearchByTags from './components/SearchByTags';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/decks/new" element={<CreateDeck />} />
           <Route path="/cards" element={<CardList />} />
           <Route path="/cards/new" element={<CreateCard />} />
+          <Route path="/search" element={<SearchByTags />} />
         </Routes>
       </Container>
     </div>

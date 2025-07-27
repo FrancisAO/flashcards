@@ -82,6 +82,27 @@ public class CardService {
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
+    public List<CardDTO> getCardsByTags(List<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return getAllCards();
+        }
+        
+        return cardRepository.findAll().stream()
+                .filter(card -> card.getTags().containsAll(tags))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public List<String> getAllTags() {
+        return cardRepository.findAll().stream()
+                .flatMap(card -> card.getTags().stream())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+    
     private CardDTO convertToDTO(Card card) {
         CardDTO dto = new CardDTO();
         dto.setId(card.getId());

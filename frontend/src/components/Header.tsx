@@ -19,6 +19,9 @@ const Header: React.FC = () => {
           <Button color="inherit" component={RouterLink} to="/cards">
             Karten
           </Button>
+          <Button color="inherit" component={RouterLink} to="/search">
+            Suchen
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>
