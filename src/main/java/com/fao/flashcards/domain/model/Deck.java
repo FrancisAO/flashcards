@@ -50,4 +50,9 @@ public class Deck {
         this.name = name;
         this.description = description;
     }
+
+    public void setTags(Set<String> tags) {
+        assert tags != null : "Tags cannot be null";
+        this.tags = tags;
+    }
 }
