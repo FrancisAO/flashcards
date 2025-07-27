@@ -42,6 +42,8 @@ public class DeckService {
     
     @Transactional(readOnly = true)
     public DeckDTO getDeckById(String id) {
+        assert id != null : "Deck ID darf nicht null sein";
+        assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
         Deck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Deck mit ID " + id + " wurde nicht gefunden"));
         return convertToDTO(deck);
@@ -49,6 +51,8 @@ public class DeckService {
     
     @Transactional(readOnly = true)
     public DeckWithCardsDTO getDeckWithCards(String id) {
+        assert id != null : "Deck ID darf nicht null sein";
+        assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
         Deck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Deck mit ID " + id + " wurde nicht gefunden"));
         
@@ -77,6 +81,8 @@ public class DeckService {
     
     @Transactional
     public DeckDTO updateDeck(String id, DeckDTO deckDTO) {
+        assert id != null : "Deck ID darf nicht null sein";
+        assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
         Deck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Deck mit ID " + id + " wurde nicht gefunden"));
         
@@ -93,6 +99,8 @@ public class DeckService {
     
     @Transactional
     public void deleteDeck(String id) {
+        assert id != null : "Deck ID darf nicht null sein";
+        assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
         if (!deckRepository.existsById(id)) {
             throw new NoSuchElementException("Deck mit ID " + id + " wurde nicht gefunden");
         }
@@ -107,6 +115,10 @@ public class DeckService {
     
     @Transactional
     public void addCardToDeck(String deckId, String cardId) {
+        assert deckId != null : "Deck ID darf nicht null sein";
+        assert !deckId.trim().isEmpty() : "Deck ID darf nicht leer sein";
+        assert cardId != null : "Card ID darf nicht null sein";
+        assert !cardId.trim().isEmpty() : "Card ID darf nicht leer sein";
         // Prüfen, ob Deck und Karte existieren
         if (!deckRepository.existsById(deckId)) {
             throw new NoSuchElementException("Deck mit ID " + deckId + " wurde nicht gefunden");
@@ -128,6 +140,10 @@ public class DeckService {
     
     @Transactional
     public void removeCardFromDeck(String deckId, String cardId) {
+        assert deckId != null : "Deck ID darf nicht null sein";
+        assert !deckId.trim().isEmpty() : "Deck ID darf nicht leer sein";
+        assert cardId != null : "Card ID darf nicht null sein";
+        assert !cardId.trim().isEmpty() : "Card ID darf nicht leer sein";
         // Prüfen, ob die Verknüpfung existiert
         DeckCard deckCard = deckCardRepository.findByDeckIdAndCardId(deckId, cardId)
                 .orElseThrow(() -> new NoSuchElementException("Die Karte ist nicht im Deck vorhanden"));
@@ -138,9 +154,18 @@ public class DeckService {
     
     @Transactional(readOnly = true)
     public List<DeckDTO> getDecksByTag(String tag) {
+        assert tag != null : "Tag darf nicht null sein";
+        assert !tag.trim().isEmpty() : "Tag darf nicht leer sein";
         return deckRepository.findByTagsContaining(tag).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public boolean doesDeckExist(String id) {
+        assert id != null : "Deck ID darf nicht null sein";
+        assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
+        return deckRepository.existsById(id);
     }
     
     private DeckDTO convertToDTO(Deck deck) {
