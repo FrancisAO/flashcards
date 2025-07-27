@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Deck, DeckWithCards, DeckCard } from '../types/models';
 
-const API_URL = '/api/decks';
+const API_URL = '/api/v1/decks';
 
 export const getAllDecks = async (): Promise<Deck[]> => {
   const response = await axios.get(API_URL);
