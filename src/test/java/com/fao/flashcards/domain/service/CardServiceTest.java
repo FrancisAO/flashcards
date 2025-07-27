@@ -103,4 +103,91 @@ class CardServiceTest {
         
         verify(cardRepository, times(1)).save(any(Card.class));
     }
+
+    @Test
+    void updateCard_ShouldUpdateAndReturnUpdatedCard() {
+        // Arrange
+        CardDTO cardDTO = new CardDTO();
+        cardDTO.setFront("Updated Frage");
+        cardDTO.setBack("Updated Antwort");
+        cardDTO.setTags(new HashSet<>(Arrays.asList("Updated")));
+
+        when(cardRepository.findById("test-id")).thenReturn(Optional.of(testCard));
+        when(cardRepository.save(any(Card.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        CardDTO result = cardService.updateCard("test-id", cardDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Updated Frage", result.getFront());
+        assertEquals("Updated Antwort", result.getBack());
+        assertEquals(cardDTO.getTags(), result.getTags());
+
+        verify(cardRepository, times(1)).findById("test-id");
+        verify(cardRepository, times(1)).save(any(Card.class));
+    }
+
+    @Test
+    void deleteCard_ShouldDeleteCardById() {
+        // Arrange
+        when(cardRepository.existsById("test-id")).thenReturn(true);
+
+        // Act
+        cardService.deleteCard("test-id");
+
+        // Assert
+        verify(cardRepository, times(1)).existsById("test-id");
+        verify(cardRepository, times(1)).deleteById("test-id");
+    }
+
+    @Test
+    void getCardsByTag_ShouldReturnCardsWithTag() {
+        // Arrange
+        when(cardRepository.findByTagsContaining("Test"))
+                .thenReturn(Arrays.asList(testCard));
+
+        // Act
+        List<CardDTO> result = cardService.getCardsByTag("Test");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(testCard.getId(), result.get(0).getId());
+
+        verify(cardRepository, times(1)).findByTagsContaining("Test");
+    }
+
+    @Test
+    void getCardsByTags_ShouldReturnCardsWithAllTags() {
+        // Arrange
+        when(cardRepository.findAll()).thenReturn(Arrays.asList(testCard));
+
+        // Act
+        List<CardDTO> result = cardService.getCardsByTags(Arrays.asList("Test", "Unit"));
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(testCard.getId(), result.get(0).getId());
+
+        verify(cardRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getAllTags_ShouldReturnAllUniqueTags() {
+        // Arrange
+        when(cardRepository.findAll()).thenReturn(Arrays.asList(testCard));
+
+        // Act
+        List<String> result = cardService.getAllTags();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains("Test"));
+        assertTrue(result.contains("Unit"));
+
+        verify(cardRepository, times(1)).findAll();
+    }
 }
