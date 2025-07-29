@@ -73,6 +73,12 @@ public class DeckController {
     @PostMapping
     public ResponseEntity<DeckDTO> createDeck(@Valid @RequestBody DeckDTO deckDTO) {
         logger.info("POST /api/decks - Creating new deck");
+
+        if (deckDTO.getName() == null || deckDTO.getName().trim().isEmpty()) {
+            logger.warn("Invalid deck name: {}", deckDTO.getName());
+            return ResponseEntity.badRequest().build();
+        }
+
         DeckDTO createdDeck = deckService.createDeck(deckDTO);
         return new ResponseEntity<>(createdDeck, HttpStatus.CREATED);
     }
