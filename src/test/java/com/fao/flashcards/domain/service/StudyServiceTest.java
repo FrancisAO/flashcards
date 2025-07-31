@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -83,10 +82,12 @@ class StudyServiceTest {
         when(cardRepository.findById("card-id-2")).thenReturn(Optional.of(testCard2));
 
         // Act
-        StudyDeckDTO result = studyService.getRandomizedDeck("deck-id");
+        Optional<StudyDeckDTO> resultOptional = studyService.getRandomizedDeck("deck-id");
 
         // Assert
-        assertNotNull(result);
+        assertTrue(resultOptional.isPresent(), "Result should be present");
+        StudyDeckDTO result = resultOptional.get();
+        
         assertEquals(testDeck.getId(), result.getId());
         assertEquals(testDeck.getName(), result.getName());
         assertEquals(testDeck.getDescription(), result.getDescription());
@@ -118,17 +119,40 @@ class StudyServiceTest {
     }
 
     @Test
-    void getRandomizedDeck_ShouldThrowExceptionWhenDeckNotFound() {
+    void getRandomizedDeck_ShouldReturnEmptyWhenDeckNotFound() {
         // Arrange
         when(deckRepository.findById("deck-id")).thenReturn(Optional.empty());
 
-        // Act & Assert
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-            studyService.getRandomizedDeck("deck-id");
-        });
+        // Act
+        Optional<StudyDeckDTO> result = studyService.getRandomizedDeck("deck-id");
 
-        assertEquals("Deck mit ID deck-id wurde nicht gefunden", exception.getMessage());
+        // Assert
+        assertTrue(result.isEmpty(), "Result should be empty when deck is not found");
         verify(deckRepository, times(1)).findById("deck-id");
+    }
+    
+    @Test
+    void getRandomizedDeck_ShouldIgnoreMissingCards() {
+        // Arrange
+        when(deckRepository.findById("deck-id")).thenReturn(Optional.of(testDeck));
+        when(deckCardRepository.findByDeckId("deck-id")).thenReturn(Arrays.asList(testDeckCard1, testDeckCard2));
+        when(cardRepository.findById("card-id-1")).thenReturn(Optional.of(testCard1));
+        when(cardRepository.findById("card-id-2")).thenReturn(Optional.empty()); // Second card is missing
+
+        // Act
+        Optional<StudyDeckDTO> resultOptional = studyService.getRandomizedDeck("deck-id");
+
+        // Assert
+        assertTrue(resultOptional.isPresent(), "Result should be present");
+        StudyDeckDTO result = resultOptional.get();
+        
+        assertEquals(1, result.getCards().size(), "Should only include the cards that were found");
+        assertEquals(testCard1.getId(), result.getCards().get(0).getId(), "Only card1 should be included");
+        
+        verify(deckRepository, times(1)).findById("deck-id");
+        verify(deckCardRepository, times(1)).findByDeckId("deck-id");
+        verify(cardRepository, times(1)).findById("card-id-1");
+        verify(cardRepository, times(1)).findById("card-id-2");
     }
 
     @Test

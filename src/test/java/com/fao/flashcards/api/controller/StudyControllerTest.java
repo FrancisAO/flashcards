@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -44,7 +45,7 @@ class StudyControllerTest {
         mockStudyDeck.setCards(Arrays.asList(card1, card2));
         
         when(studyService.doesDeckExist(deckId)).thenReturn(true);
-        when(studyService.getRandomizedDeck(deckId)).thenReturn(mockStudyDeck);
+        when(studyService.getRandomizedDeck(deckId)).thenReturn(Optional.of(mockStudyDeck));
 
         // Act
         ResponseEntity<StudyDeckDTO> response = studyController.getRandomizedDeck(deckId);

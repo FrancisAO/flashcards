@@ -29,6 +29,21 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 }
 
+// Default test task runs all tests
 test {
     useJUnitPlatform()
+}
+
+// Task for running only unit tests
+task unitTests(type: Test) {
+    description = 'Runs all unit tests (classes ending with Test but not IntegrationTest)'
+    group = 'verification'
+    
+    useJUnitPlatform()
+    
+    // Include test files ending with Test.java but exclude those ending with IntegrationTest.java
+    filter {
+        includeTestsMatching "*Test"
+        excludeTestsMatching "*IntegrationTest"
+    }
 }

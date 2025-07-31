@@ -46,7 +46,11 @@ public class StudyController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         
-        StudyDeckDTO studyDeckDTO = studyService.getRandomizedDeck(deckId);
-        return ResponseEntity.ok(studyDeckDTO);
+        return studyService.getRandomizedDeck(deckId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> {
+                    logger.warn("Deck mit ID {} nicht gefunden oder konnte nicht geladen werden", deckId);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                });
     }
 }

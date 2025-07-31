@@ -1,6 +1,7 @@
 package com.fao.flashcards.domain.service;
 
 import com.fao.flashcards.api.dto.StudyDeckDTO;
+import java.util.Optional;
 
 /**
  * Service-Interface für den Lernmodus.
@@ -13,9 +14,10 @@ public interface StudyService {
      * 
      * @param deckId Die ID des Decks
      * @return Ein StudyDeckDTO mit den Karten in zufälliger Reihenfolge
-     * @throws java.util.NoSuchElementException wenn das Deck nicht gefunden wird
+     * @return Ein Optional mit StudyDeckDTO mit den Karten in zufälliger Reihenfolge
+     *         oder Optional.empty(), wenn das Deck nicht gefunden wurde
      */
-    StudyDeckDTO getRandomizedDeck(String deckId);
+    Optional<StudyDeckDTO> getRandomizedDeck(String deckId);
     
     /**
      * Prüft, ob ein Deck existiert.
