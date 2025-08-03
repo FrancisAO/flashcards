@@ -18,7 +18,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     
-    // H2 Database
+    // Database
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.flywaydb:flyway-core'
+    
+    // H2 Database (für Entwicklung und Tests)
     runtimeOnly 'com.h2database:h2'
     
     // Test dependencies
