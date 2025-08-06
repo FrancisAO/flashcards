@@ -2,21 +2,37 @@
 setlocal enabledelayedexpansion
 
 REM Lade Umgebungsvariablen aus .env-Datei
-if exist .env (
-    for /F "tokens=*" %%A in (.env) do (
-        set line=%%A
-        if not "!line:~0,1!"=="#" (
-            set !line!
+if defined ENV_FILE_PATH (
+    if exist "%ENV_FILE_PATH%" (
+        echo Lade Umgebungsvariablen aus %ENV_FILE_PATH%
+        for /F "tokens=*" %%A in (%ENV_FILE_PATH%) do (
+            set line=%%A
+            if not "!line:~0,1!"=="#" (
+                set !line!
+            )
         )
+    ) else (
+        echo WARNUNG: ENV_FILE_PATH ist definiert, aber die Datei existiert nicht: %ENV_FILE_PATH%
+        echo Versuche lokale .env-Datei...
     )
-) else (
-    echo FEHLER: .env-Datei nicht gefunden!
-    exit /b 1
 )
 
-REM Expandiere die Pfade mit dem tatsächlichen USERPROFILE
-set POSTGRES_DATA_PATH=%USERPROFILE%\flashcards\postgres-data
-set BACKUP_PATH=%USERPROFILE%\flashcards\backups
+if not defined ENV_FILE_PATH (
+    if exist .env (
+        echo Lade Umgebungsvariablen aus lokaler .env-Datei
+        for /F "tokens=*" %%A in (.env) do (
+            set line=%%A
+            if not "!line:~0,1!"=="#" (
+                set !line!
+            )
+        )
+    ) else (
+        echo FEHLER: .env-Datei nicht gefunden!
+        exit /b 1
+    )
+)
+
+REM Die Pfade werden aus der .env-Datei geladen und nicht überschrieben
 
 REM Debug-Ausgabe der Umgebungsvariablen
 echo "DEBUG: POSTGRES_DATA_PATH=%POSTGRES_DATA_PATH%"
@@ -53,14 +69,14 @@ echo "DEBUG: Aufruf mit POSTGRES_DATA_PATH: %POSTGRES_DATA_PATH%"
 call :check_and_create_directory "%POSTGRES_DATA_PATH%"
 echo "DEBUG: Aufruf mit BACKUP_PATH: %BACKUP_PATH%"
 call :check_and_create_directory "%BACKUP_PATH%"
-echo "DEBUG: Aufruf mit USERPROFILE\flashcards: %USERPROFILE%\flashcards"
-call :check_and_create_directory "%USERPROFILE%\flashcards"
+echo "DEBUG: Aufruf mit USERPROFILE\apps\flashcards: %USERPROFILE%\apps\flashcards"
+call :check_and_create_directory "%USERPROFILE%\apps\flashcards"
 
 REM Überprüfe und erstelle die externe Konfigurationsdatei
-set EXTERNAL_CONFIG_PATH=%USERPROFILE%\flashcards\application.properties
+set EXTERNAL_CONFIG_PATH=%USERPROFILE%\apps\flashcards\application-prod.properties
 if not exist "%EXTERNAL_CONFIG_PATH%" (
     echo Externe Konfigurationsdatei %EXTERNAL_CONFIG_PATH% existiert nicht. Wird aus Vorlage erstellt...
-    copy src\main\resources\example-external-config.properties "%EXTERNAL_CONFIG_PATH%" >nul
+    copy src\main\resources\example-application-prod-external.properties "%EXTERNAL_CONFIG_PATH%" >nul
     if !errorlevel! equ 0 (
         echo Externe Konfigurationsdatei erfolgreich erstellt.
         echo HINWEIS: Bitte überprüfen Sie die Datei %EXTERNAL_CONFIG_PATH% und passen Sie die Konfiguration bei Bedarf an.
@@ -74,7 +90,7 @@ if not exist "%EXTERNAL_CONFIG_PATH%" (
 
 REM Starte den Postgres-Docker-Container
 echo Starte Postgres-Docker-Container...
-docker-compose --env-file %USERPROFILE%\apps\flashcards\.env up -d postgres > %USERPROFILE%\apps\flashcards\docker-compose.log 2>&1
+docker-compose up -d postgres > %USERPROFILE%\apps\flashcards\docker-compose.log 2>&1
 
 REM Warte, bis der Postgres-Container bereit ist
 echo Warte, bis der Postgres-Container bereit ist...
@@ -97,6 +113,15 @@ goto wait_for_postgres
 
 :postgres_ready
 echo Postgres-Container ist bereit.
+
+REM Erstelle die Datenbank, falls sie nicht existiert
+echo Führe Datenbank-Erstellungsskript aus...
+call create-database.bat
+if %errorlevel% neq 0 (
+    echo FEHLER: Datenbank-Erstellungsskript fehlgeschlagen!
+    exit /b 1
+)
+echo Datenbank-Erstellungsskript erfolgreich ausgeführt.
 
 REM Starte das Spring Boot Backend in einem separaten Fenster
 echo Starte das Flashcards-Backend...

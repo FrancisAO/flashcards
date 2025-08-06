@@ -115,12 +115,17 @@ Unter Linux/macOS:
 ./start.sh
 ```
 
-Unter Windows:
+Unter Windows (powershell):
 
 ```bash
+$env:ENV_FILE_PATH="C:\Pfad\zu\meiner\env-datei.env"
 start.bat
 ```
-
+oder nur
+```
+start.bat
+```
+Im unteren Fall wird eine lokale .env-Datei gesucht, in der die relevanten Daten für die Verbindung zur Postgres enthalten sind (siehe Abschnitt Umgebungsvariablen).
 ### Backup-Skript (backup.sh)
 
 Das Backup-Skript erstellt ein Backup der PostgreSQL-Datenbank:
