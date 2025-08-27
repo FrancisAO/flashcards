@@ -1,6 +1,6 @@
 -- Einige Beispiel-Karten einfügen
 INSERT INTO cards (id, front, back, created_at, updated_at) VALUES 
-('1', 'Was ist Kava?', 'Java ist eine objektorientierte Programmiersprache, die plattformunabhängig ist.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('1', 'Was ist Java?', 'Java ist eine objektorientierte Programmiersprache, die plattformunabhängig ist.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('2', 'Was ist Spring Boot?', 'Spring Boot ist ein Framework, das die Entwicklung von Spring-basierten Anwendungen vereinfacht.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('3', 'Was ist React?', 'React ist eine JavaScript-Bibliothek zum Erstellen von Benutzeroberflächen.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('4', 'Was ist TypeScript?', 'TypeScript ist eine von Microsoft entwickelte Programmiersprache, die ein Superset von JavaScript ist und statische Typisierung hinzufügt.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

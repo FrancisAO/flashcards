@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Typography, 
-  Box, 
-  Button, 
-  Card, 
-  CardContent, 
+import {
+  Typography,
+  Box,
+  Button,
+  Card,
+  CardContent,
   CardActions,
   Grid,
   Chip,
@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { getDeckWithCards, deleteDeck, removeCardFromDeck } from '../services/deckService';
 import { DeckWithCards } from '../types/models';
+import GenerateCardsButton from './GenerateCardsButton';
 
 const DeckDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -100,15 +101,16 @@ const DeckDetail: React.FC = () => {
           {deck.name}
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             color="primary"
             onClick={() => navigate(`/cards/new?deckId=${deck.id}`)}
           >
             Karte hinzufügen
           </Button>
-          <Button 
-            variant="outlined" 
+          {deck.id && <GenerateCardsButton deckId={deck.id} />}
+          <Button
+            variant="outlined"
             color="error"
             onClick={() => setDeleteConfirmOpen(true)}
           >
