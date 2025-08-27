@@ -18,7 +18,7 @@ import java.util.HashSet;
 public class DataInitializer {
 
     @Bean
-    @Profile("!test") // Nicht in Testumgebung ausführen
+    @Profile("dev") // Nicht in Testumgebung ausführen
     CommandLineRunner init(CardRepository cardRepository, DeckRepository deckRepository, DeckCardRepository deckCardRepository) {
         return args -> {
             // Karten erstellen
