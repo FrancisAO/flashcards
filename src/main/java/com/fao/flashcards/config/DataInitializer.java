@@ -22,7 +22,7 @@ public class DataInitializer {
     CommandLineRunner init(CardRepository cardRepository, DeckRepository deckRepository, DeckCardRepository deckCardRepository) {
         return args -> {
             // Karten erstellen
-            Card card1 = new Card("Was ist Hava?", "Java ist eine objektorientierte Programmiersprache");
+            Card card1 = new Card("Was ist Java?", "Java ist eine objektorientierte Programmiersprache");
             card1.setTags(new HashSet<>(Arrays.asList("Programmierung", "Java")));
             
             Card card2 = new Card("Was ist Spring Boot?", "Spring Boot ist ein Framework zur Erstellung von Java-Anwendungen");
