@@ -13,7 +13,6 @@ public interface StudyService {
      * Gibt alle Karten eines Decks in zufälliger Reihenfolge zurück.
      * 
      * @param deckId Die ID des Decks
-     * @return Ein StudyDeckDTO mit den Karten in zufälliger Reihenfolge
      * @return Ein Optional mit StudyDeckDTO mit den Karten in zufälliger Reihenfolge
      *         oder Optional.empty(), wenn das Deck nicht gefunden wurde
      */
