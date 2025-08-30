@@ -10,6 +10,8 @@ sourceCompatibility = '21'
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
@@ -18,8 +20,23 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     
-    // H2 Database
+    // Database
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.flywaydb:flyway-core'
+    
+    // H2 Database (für Entwicklung und Tests)
     runtimeOnly 'com.h2database:h2'
+    
+    // Entfernt: Spring AI-Abhängigkeiten, da wir eine direkte Implementierung verwenden
+    
+    // Dokument-Verarbeitung
+    implementation 'org.apache.pdfbox:pdfbox:3.0.5'
+    implementation 'org.apache.pdfbox:pdfbox-io:3.0.5'
+    implementation 'org.apache.poi:poi:5.2.3'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    
+    // JSON-Verarbeitung
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     
     // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -29,6 +46,21 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 }
 
+// Default test task runs all tests
 test {
     useJUnitPlatform()
+}
+
+// Task for running only unit tests
+task unitTests(type: Test) {
+    description = 'Runs all unit tests (classes ending with Test but not IntegrationTest)'
+    group = 'verification'
+    
+    useJUnitPlatform()
+    
+    // Include test files ending with Test.java but exclude those ending with IntegrationTest.java
+    filter {
+        includeTestsMatching "*Test"
+        excludeTestsMatching "*IntegrationTest"
+    }
 }

@@ -176,3 +176,7 @@ Response 422 (Validation Error):
   ]
 }
 ```
+
+## Hinweise
+- Im root-Verzeichnis dieses Projekts gibt es die Bilddateien ocr-test1.jpg und ocr-test2.jpg mit denen die Implementierung getestet werden kann.
+- Das frontend ist im Verzeichnis "frontend". Das Backend im Verzecihnis "src".

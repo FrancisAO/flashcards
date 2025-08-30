@@ -1,0 +1,71 @@
+# Einführung in Java
+
+Java ist eine objektorientierte Programmiersprache, die 1995 von Sun Microsystems entwickelt wurde. Sie ist eine der am weitesten verbreiteten Programmiersprachen und wird für verschiedene Anwendungen eingesetzt, von Webanwendungen bis hin zu mobilen Apps.
+
+## Grundlegende Konzepte
+
+### Klassen und Objekte
+
+In Java ist alles in Klassen organisiert. Eine Klasse ist eine Vorlage für Objekte, die Daten und Methoden enthält. Ein Objekt ist eine Instanz einer Klasse.
+
+```java
+public class Person {
+    private String name;
+    private int alter;
+    
+    public Person(String name, int alter) {
+        this.name = name;
+        this.alter = alter;
+    }
+    
+    public void vorstellen() {
+        System.out.println("Hallo, ich bin " + name + " und " + alter + " Jahre alt.");
+    }
+}
+```
+
+### Vererbung
+
+Vererbung ermöglicht es, eine neue Klasse auf der Grundlage einer bestehenden Klasse zu erstellen. Die neue Klasse erbt Eigenschaften und Methoden der Elternklasse.
+
+```java
+public class Student extends Person {
+    private String studiengang;
+    
+    public Student(String name, int alter, String studiengang) {
+        super(name, alter);
+        this.studiengang = studiengang;
+    }
+    
+    @Override
+    public void vorstellen() {
+        super.vorstellen();
+        System.out.println("Ich studiere " + studiengang + ".");
+    }
+}
+```
+
+### Polymorphismus
+
+Polymorphismus ermöglicht es, dass eine Methode in verschiedenen Klassen unterschiedlich implementiert werden kann. Dies wird durch Überschreiben von Methoden erreicht.
+
+### Abstraktion
+
+Abstraktion ermöglicht es, komplexe Systeme zu vereinfachen, indem nur die relevanten Details angezeigt werden. In Java wird dies durch abstrakte Klassen und Interfaces erreicht.
+
+### Kapselung
+
+Kapselung ist das Verbergen von Implementierungsdetails und das Beschränken des Zugriffs auf bestimmte Komponenten. In Java wird dies durch Zugriffsmodifikatoren wie private, protected und public erreicht.
+
+## Java-Plattformen
+
+Java bietet verschiedene Plattformen für unterschiedliche Anwendungsfälle:
+
+1. Java SE (Standard Edition) - für Desktop-Anwendungen
+2. Java EE (Enterprise Edition) - für Unternehmensanwendungen
+3. Java ME (Micro Edition) - für mobile Geräte
+4. Java Card - für Smart Cards
+
+## Zusammenfassung
+
+Java ist eine vielseitige Programmiersprache mit starker Typisierung und automatischer Speicherverwaltung. Sie bietet Plattformunabhängigkeit durch die Java Virtual Machine (JVM) und unterstützt die wichtigsten Konzepte der objektorientierten Programmierung.
