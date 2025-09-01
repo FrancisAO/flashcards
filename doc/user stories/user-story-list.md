@@ -32,7 +32,7 @@ verwendet werden, ohne den Anwendungskern (die domain) zu ändern.
 verwendet.
 - Der API Endpunkt ist: https://api.mistral.ai/v1/ocr
 - Die Authorisierung erfolgt via HTTP Authorization Scheme: bearer
-- Als API-Key kann "39c4sYdTUGwGsAxo9aXaCKWFSUlPZsLz" verwendet werden.
+- Als API-Key kann "abc" verwendet werden.
 - Der Endpunkt wird via REST "POST" angesprochen
 - Das model, das im Request angegeben werden muss, heißt "mistral-ocr-latest"
 - Die maximale Größe der gesendeten Dokumente/Bilder darf 50 MB nicht überschreiten. 

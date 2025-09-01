@@ -117,13 +117,13 @@ Unter Linux/macOS:
 
 Unter Windows (powershell):
 
-```bash
+```powershell
 $env:ENV_FILE_PATH="C:\Pfad\zu\meiner\env-datei.env"
-start.bat
+./start.bat
 ```
 oder nur
 ```
-start.bat
+./start.bat
 ```
 Im unteren Fall wird eine lokale .env-Datei gesucht, in der die relevanten Daten für die Verbindung zur Postgres enthalten sind (siehe Abschnitt Umgebungsvariablen).
 ### Backup-Skript (backup.sh)

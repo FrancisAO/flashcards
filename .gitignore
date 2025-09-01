@@ -54,6 +54,9 @@ target/
 *.mv.db
 *.trace.db
 
+# Postgres
+postgres-data/
+
 # Node.js / React
 node_modules/
 /frontend/build

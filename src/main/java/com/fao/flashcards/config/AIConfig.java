@@ -1,13 +1,60 @@
 package com.fao.flashcards.config;
 
+import com.fao.flashcards.adapter.ocr.MistralOCRAdapter;
+import com.fao.flashcards.domain.port.OCRProcessingPort;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
- * Konfiguration für die KI-Integration mit OpenRouter.ai.
+ * Konfiguration für die KI-Integration mit OpenRouter.ai und OCR-Services.
  * Die eigentliche Konfiguration erfolgt über die application.properties-Datei.
  */
 @Configuration
 public class AIConfig {
-    // Die Konfiguration erfolgt über die application.properties-Datei
-    // und wird direkt in den DirectOpenRouterAIAdapter injiziert
+    
+    @Value("${mistral.api.key}")
+    private String mistralApiKey;
+    
+    @Value("${mistral.api.base-url}")
+    private String mistralApiUrl;
+    
+    @Value("${mistral.ocr.model}")
+    private String mistralOcrModel;
+    
+    @Value("${mistral.ocr.max-tokens:4096}")
+    private Integer mistralOcrMaxTokens;
+    
+    @Value("${mistral.ocr.temperature:0.0}")
+    private Double mistralOcrTemperature;
+    
+    /**
+     * Bean für RestTemplate speziell für OCR-Requests.
+     * Konfiguriert mit angemessenen Timeouts für OCR-Verarbeitung.
+     */
+    @Bean("ocrRestTemplate")
+    public RestTemplate ocrRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        
+        // Erweiterte Timeouts für OCR-Verarbeitung da diese länger dauern kann
+        restTemplate.getInterceptors().add((request, body, execution) -> {
+            request.getHeaders().add("Content-Type", "application/json");
+            if (mistralApiKey != null && !mistralApiKey.isEmpty()) {
+                request.getHeaders().add("Authorization", "Bearer " + mistralApiKey);
+            }
+            return execution.execute(request, body);
+        });
+        
+        return restTemplate;
+    }
+    
+    /**
+     * Primary Bean für OCRProcessingPort.
+     * Verwendet den MistralOCRAdapter als Standard-Implementation.
+     */
+    @Bean
+    public OCRProcessingPort ocrProcessingPort() {
+        return new MistralOCRAdapter(ocrRestTemplate());
+    }
 }
