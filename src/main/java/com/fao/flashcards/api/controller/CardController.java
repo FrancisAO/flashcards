@@ -33,7 +33,7 @@ public class CardController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CardDTO> getCardById(@PathVariable String id) {
+    public ResponseEntity<CardDTO> getCardById(@PathVariable("id") String id) {
         logger.info("GET /api/cards/{} - Fetching card by ID", id);
         
         if (id == null || id.trim().isEmpty()) {
@@ -53,7 +53,7 @@ public class CardController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CardDTO> updateCard(@PathVariable String id, @Valid @RequestBody CardDTO cardDTO) {
+    public ResponseEntity<CardDTO> updateCard(@PathVariable("id") String id, @Valid @RequestBody CardDTO cardDTO) {
         logger.info("PUT /api/cards/{} - Updating card", id);
         
         if (id == null || id.trim().isEmpty()) {
@@ -66,7 +66,7 @@ public class CardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCard(@PathVariable String id) {
+    public ResponseEntity<Void> deleteCard(@PathVariable("id") String id) {
         logger.info("DELETE /api/cards/{} - Deleting card", id);
         
         if (id == null || id.trim().isEmpty()) {
@@ -79,7 +79,7 @@ public class CardController {
     }
 
     @GetMapping("/tag/{tag}")
-    public ResponseEntity<List<CardDTO>> getCardsByTag(@PathVariable String tag) {
+    public ResponseEntity<List<CardDTO>> getCardsByTag(@PathVariable("tag") String tag) {
         logger.info("GET /api/cards/tag/{} - Fetching cards by tag", tag);
         
         if (tag == null || tag.trim().isEmpty()) {

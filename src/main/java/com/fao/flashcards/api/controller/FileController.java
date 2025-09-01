@@ -56,7 +56,7 @@ public class FileController {
      */
     @PostMapping("/upload/{projectId}")
     public ResponseEntity<FileUploadResponse> uploadFile(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
             @RequestParam("file") MultipartFile file) {
         
         log.info("POST /api/v1/files/upload/{} - Datei: {}", projectId, file.getOriginalFilename());
@@ -101,7 +101,7 @@ public class FileController {
      */
     @PostMapping("/upload/batch/{projectId}")
     public ResponseEntity<List<FileUploadResponse>> uploadBatchFiles(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
             @RequestParam("files") MultipartFile[] files) {
         
         log.info("POST /api/v1/files/upload/batch/{} - {} Dateien", projectId, files.length);
@@ -158,7 +158,7 @@ public class FileController {
      * GET /api/v1/files/download/{fileId} - Datei herunterladen
      */
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileId) {
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") String fileId) {
         log.debug("GET /api/v1/files/download/{}", fileId);
         
         try {
@@ -209,7 +209,7 @@ public class FileController {
      * GET /api/v1/files/{fileId} - Datei-Metadaten abrufen
      */
     @GetMapping("/{fileId}")
-    public ResponseEntity<ProjectFileDTO> getFileInfo(@PathVariable String fileId) {
+    public ResponseEntity<ProjectFileDTO> getFileInfo(@PathVariable("fileId") String fileId) {
         log.debug("GET /api/v1/files/{}", fileId);
         
         try {
@@ -239,7 +239,7 @@ public class FileController {
      * DELETE /api/v1/files/{fileId} - Datei löschen
      */
     @DeleteMapping("/{fileId}")
-    public ResponseEntity<Void> deleteFile(@PathVariable String fileId) {
+    public ResponseEntity<Void> deleteFile(@PathVariable("fileId") String fileId) {
         log.info("DELETE /api/v1/files/{}", fileId);
         
         try {
@@ -264,7 +264,7 @@ public class FileController {
      * GET /api/v1/files/{fileId}/exists - Prüft ob Datei existiert
      */
     @GetMapping("/{fileId}/exists")
-    public ResponseEntity<Boolean> fileExists(@PathVariable String fileId) {
+    public ResponseEntity<Boolean> fileExists(@PathVariable("fileId") String fileId) {
         log.debug("GET /api/v1/files/{}/exists", fileId);
         
         try {
@@ -287,7 +287,7 @@ public class FileController {
      * GET /api/v1/files/project/{projectId}/stats - Datei-Statistiken für Projekt
      */
     @GetMapping("/project/{projectId}/stats")
-    public ResponseEntity<FileProjectStats> getProjectFileStats(@PathVariable String projectId) {
+    public ResponseEntity<FileProjectStats> getProjectFileStats(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/files/project/{}/stats", projectId);
         
         try {
@@ -317,11 +317,11 @@ public class FileController {
      */
     @GetMapping
     public ResponseEntity<PaginatedResponse<ProjectFileDTO>> getFilesByProject(
-            @RequestParam String projectId,
-            @RequestParam(required = false) String filename,
-            @RequestParam(required = false) String fileType,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam("projectId") String projectId,
+            @RequestParam(value = "filename", required = false) String filename,
+            @RequestParam(value = "fileType", required = false) String fileType,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size) {
         
         log.debug("GET /api/v1/files - Projekt: {}, Filename: {}, FileType: {}, Page: {}, Size: {}", 
                  projectId, filename, fileType, page, size);

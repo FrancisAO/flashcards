@@ -33,7 +33,7 @@ public class StudyController {
      * @return Ein StudyDeckDTO mit den Karten in zufälliger Reihenfolge
      */
     @GetMapping("/decks/{deckId}/cards")
-    public ResponseEntity<StudyDeckDTO> getRandomizedDeck(@PathVariable String deckId) {
+    public ResponseEntity<StudyDeckDTO> getRandomizedDeck(@PathVariable("deckId") String deckId) {
         logger.info("GET /api/v1/study/decks/{}/cards - Hole Karten für Deck in zufälliger Reihenfolge", deckId);
         
         if (deckId == null || deckId.trim().isEmpty()) {

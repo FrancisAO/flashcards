@@ -51,11 +51,11 @@ public class ProjectController {
      */
     @GetMapping
     public ResponseEntity<Page<ProjectDTO>> getAllProjects(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir,
-            @RequestParam(required = false) String search) {
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "desc") String sortDir,
+            @RequestParam(value = "search", required = false) String search) {
         
         log.debug("GET /api/v1/projects - page: {}, size: {}, sortBy: {}, sortDir: {}, search: {}", 
                  page, size, sortBy, sortDir, search);
@@ -133,7 +133,7 @@ public class ProjectController {
      * GET /api/v1/projects/{projectId} - Einzelnes Projekt abrufen
      */
     @GetMapping("/{projectId}")
-    public ResponseEntity<ProjectDTO> getProject(@PathVariable String projectId) {
+    public ResponseEntity<ProjectDTO> getProject(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/projects/{}", projectId);
         
         try {
@@ -153,7 +153,7 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}/statistics")
-    public ResponseEntity<ProjectStatisticsDTO> getProjectStatistics(@PathVariable String projectId) {
+    public ResponseEntity<ProjectStatisticsDTO> getProjectStatistics(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/projects/{}/statistics", projectId);
 
         try {
@@ -212,7 +212,7 @@ public class ProjectController {
      * PUT /api/v1/projects/{projectId} - Projekt aktualisieren
      */
     @PutMapping("/{projectId}")
-    public ResponseEntity<ProjectDTO> updateProject(@PathVariable String projectId, 
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable("projectId") String projectId,
                                                    @Valid @RequestBody UpdateProjectRequest request) {
         log.info("PUT /api/v1/projects/{} - Aktualisiere Projekt: {}", projectId, request.getName());
         
@@ -251,7 +251,7 @@ public class ProjectController {
      * DELETE /api/v1/projects/{projectId} - Projekt löschen
      */
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<Void> deleteProject(@PathVariable String projectId) {
+    public ResponseEntity<Void> deleteProject(@PathVariable("projectId") String projectId) {
         log.info("DELETE /api/v1/projects/{}", projectId);
         
         try {
@@ -276,7 +276,7 @@ public class ProjectController {
      * GET /api/v1/projects/{projectId}/files - Dateien eines Projekts abrufen
      */
     @GetMapping("/{projectId}/files")
-    public ResponseEntity<List<ProjectFileDTO>> getProjectFiles(@PathVariable String projectId) {
+    public ResponseEntity<List<ProjectFileDTO>> getProjectFiles(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/projects/{}/files", projectId);
         
         try {
@@ -322,8 +322,8 @@ public class ProjectController {
      * POST /api/v1/projects/{projectId}/tags - Tag zu Projekt hinzufügen
      */
     @PostMapping("/{projectId}/tags")
-    public ResponseEntity<ProjectDTO> addTag(@PathVariable String projectId, 
-                                           @RequestParam String tag) {
+    public ResponseEntity<ProjectDTO> addTag(@PathVariable("projectId") String projectId,
+                                           @RequestParam("tag") String tag) {
         log.debug("POST /api/v1/projects/{}/tags - Tag: {}", projectId, tag);
         
         try {
@@ -350,8 +350,8 @@ public class ProjectController {
      * DELETE /api/v1/projects/{projectId}/tags - Tag von Projekt entfernen
      */
     @DeleteMapping("/{projectId}/tags")
-    public ResponseEntity<ProjectDTO> removeTag(@PathVariable String projectId, 
-                                              @RequestParam String tag) {
+    public ResponseEntity<ProjectDTO> removeTag(@PathVariable("projectId") String projectId,
+                                              @RequestParam("tag") String tag) {
         log.debug("DELETE /api/v1/projects/{}/tags - Tag: {}", projectId, tag);
         
         try {
@@ -378,7 +378,7 @@ public class ProjectController {
      * PUT /api/v1/projects/{projectId}/tags - Alle Tags eines Projekts setzen
      */
     @PutMapping("/{projectId}/tags")
-    public ResponseEntity<ProjectDTO> setTags(@PathVariable String projectId, 
+    public ResponseEntity<ProjectDTO> setTags(@PathVariable("projectId") String projectId,
                                             @RequestBody Set<String> tags) {
         log.debug("PUT /api/v1/projects/{}/tags - Tags: {}", projectId, tags);
         

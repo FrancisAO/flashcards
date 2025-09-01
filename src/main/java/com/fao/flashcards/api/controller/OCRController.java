@@ -47,8 +47,8 @@ public class OCRController {
      */
     @PostMapping("/extract/{fileId}")
     public ResponseEntity<OCRProcessResponse> extractTextFromFile(
-            @PathVariable String fileId,
-            @RequestParam(defaultValue = "false") boolean async,
+            @PathVariable("fileId") String fileId,
+            @RequestParam(value = "async", defaultValue = "false") boolean async,
             @RequestBody(required = false) OCRProcessRequest.OCROptionsDTO options) {
         
         log.info("POST /api/v1/ocr/extract/{} - async: {}", fileId, async);
@@ -114,7 +114,7 @@ public class OCRController {
     @PostMapping("/extract/batch")
     public ResponseEntity<OCRProcessResponse> extractTextFromBatch(
             @Valid @RequestBody OCRProcessRequest request,
-            @RequestParam(defaultValue = "false") boolean async) {
+            @RequestParam(value = "async", defaultValue = "false") boolean async) {
         
         log.info("POST /api/v1/ocr/extract/batch - {} Dateien, async: {}", 
                 request.getFileCount(), async);
@@ -178,7 +178,7 @@ public class OCRController {
      * GET /api/v1/ocr/status/{fileId} - OCR-Status abrufen
      */
     @GetMapping("/status/{fileId}")
-    public ResponseEntity<OCRResultDTO> getOCRStatus(@PathVariable String fileId) {
+    public ResponseEntity<OCRResultDTO> getOCRStatus(@PathVariable("fileId") String fileId) {
         log.debug("GET /api/v1/ocr/status/{}", fileId);
         
         try {
@@ -207,7 +207,7 @@ public class OCRController {
      * GET /api/v1/ocr/project/{projectId}/texts - Alle extrahierten Texte eines Projekts
      */
     @GetMapping("/project/{projectId}/texts")
-    public ResponseEntity<List<ExtractedTextDTO>> getProjectExtractedTexts(@PathVariable String projectId) {
+    public ResponseEntity<List<ExtractedTextDTO>> getProjectExtractedTexts(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/ocr/project/{}/texts", projectId);
         
         try {
@@ -234,7 +234,7 @@ public class OCRController {
      * GET /api/v1/ocr/text/{textId} - Einzelnen extrahierten Text abrufen
      */
     @GetMapping("/text/{textId}")
-    public ResponseEntity<ExtractedTextDTO> getExtractedText(@PathVariable String textId) {
+    public ResponseEntity<ExtractedTextDTO> getExtractedText(@PathVariable("textId") String textId) {
         log.debug("GET /api/v1/ocr/text/{}", textId);
         
         try {
@@ -263,7 +263,7 @@ public class OCRController {
      */
     @PutMapping("/text/{textId}")
     public ResponseEntity<ExtractedTextDTO> updateExtractedText(
-            @PathVariable String textId,
+            @PathVariable("textId") String textId,
             @Valid @RequestBody UpdateTextRequest request) {
         
         log.info("PUT /api/v1/ocr/text/{} - Text bearbeiten", textId);
@@ -296,8 +296,8 @@ public class OCRController {
      */
     @PostMapping("/reprocess/{fileId}")
     public ResponseEntity<OCRProcessResponse> reprocessFile(
-            @PathVariable String fileId,
-            @RequestParam(defaultValue = "false") boolean async,
+            @PathVariable("fileId") String fileId,
+            @RequestParam(value = "async", defaultValue = "false") boolean async,
             @RequestBody(required = false) OCRProcessRequest.OCROptionsDTO options) {
         
         log.info("POST /api/v1/ocr/reprocess/{} - async: {}", fileId, async);
@@ -353,7 +353,7 @@ public class OCRController {
      * DELETE /api/v1/ocr/text/{textId} - Extrahierten Text zurücksetzen
      */
     @DeleteMapping("/text/{textId}")
-    public ResponseEntity<ExtractedTextDTO> resetExtractedText(@PathVariable String textId) {
+    public ResponseEntity<ExtractedTextDTO> resetExtractedText(@PathVariable("textId") String textId) {
         log.info("DELETE /api/v1/ocr/text/{} - Text zurücksetzen", textId);
         
         try {
@@ -376,7 +376,7 @@ public class OCRController {
      * GET /api/v1/ocr/project/{projectId}/stats - OCR-Statistiken für Projekt
      */
     @GetMapping("/project/{projectId}/stats")
-    public ResponseEntity<OCRService.OCRProjectStatistics> getProjectOCRStats(@PathVariable String projectId) {
+    public ResponseEntity<OCRService.OCRProjectStatistics> getProjectOCRStats(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/ocr/project/{}/stats", projectId);
         
         try {
@@ -404,7 +404,7 @@ public class OCRController {
      * GET /api/v1/ocr/project/{projectId}/unprocessed - Unverarbeitete Dateien eines Projekts
      */
     @GetMapping("/project/{projectId}/unprocessed")
-    public ResponseEntity<List<ProjectFileDTO>> getUnprocessedFiles(@PathVariable String projectId) {
+    public ResponseEntity<List<ProjectFileDTO>> getUnprocessedFiles(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/ocr/project/{}/unprocessed", projectId);
         
         try {

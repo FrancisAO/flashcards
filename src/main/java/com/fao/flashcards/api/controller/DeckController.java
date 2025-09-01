@@ -35,7 +35,7 @@ public class DeckController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DeckDTO> getDeckById(@PathVariable String id) {
+    public ResponseEntity<DeckDTO> getDeckById(@PathVariable("id") String id) {
         logger.info("GET /api/decks/{} - Fetching deck by ID", id);
 
         if (id == null || id.trim().isEmpty()) {
@@ -53,7 +53,7 @@ public class DeckController {
     }
 
     @GetMapping("/{id}/cards")
-    public ResponseEntity<DeckWithCardsDTO> getDeckWithCards(@PathVariable String id) {
+    public ResponseEntity<DeckWithCardsDTO> getDeckWithCards(@PathVariable("id") String id) {
         logger.info("GET /api/decks/{}/cards - Fetching deck with cards", id);
 
         if (id == null || id.trim().isEmpty()) {
@@ -84,7 +84,7 @@ public class DeckController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DeckDTO> updateDeck(@PathVariable String id, @Valid @RequestBody DeckDTO deckDTO) {
+    public ResponseEntity<DeckDTO> updateDeck(@PathVariable("id") String id, @Valid @RequestBody DeckDTO deckDTO) {
         logger.info("PUT /api/decks/{} - Updating deck", id);
 
         if (id == null || id.trim().isEmpty()) {
@@ -102,7 +102,7 @@ public class DeckController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDeck(@PathVariable String id) {
+    public ResponseEntity<Void> deleteDeck(@PathVariable("id") String id) {
         logger.info("DELETE /api/decks/{} - Deleting deck", id);
 
         if (id == null || id.trim().isEmpty()) {
@@ -127,7 +127,7 @@ public class DeckController {
     }
 
     @DeleteMapping("/{deckId}/cards/{cardId}")
-    public ResponseEntity<Void> removeCardFromDeck(@PathVariable String deckId, @PathVariable String cardId) {
+    public ResponseEntity<Void> removeCardFromDeck(@PathVariable("deckId") String deckId, @PathVariable("cardId") String cardId) {
         logger.info("DELETE /api/decks/{}/cards/{} - Removing card from deck", deckId, cardId);
 
         if (deckId == null || deckId.trim().isEmpty()) {
@@ -150,7 +150,7 @@ public class DeckController {
     }
 
     @GetMapping("/tag/{tag}")
-    public ResponseEntity<List<DeckDTO>> getDecksByTag(@PathVariable String tag) {
+    public ResponseEntity<List<DeckDTO>> getDecksByTag(@PathVariable("tag") String tag) {
         logger.info("GET /api/decks/tag/{} - Fetching decks by tag", tag);
 
         if (tag == null || tag.trim().isEmpty()) {

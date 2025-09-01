@@ -46,7 +46,7 @@ public class CardGenerationController {
      */
     @PostMapping
     public ResponseEntity<AIGenerationRequestDTO> startGeneration(
-            @PathVariable String deckId,
+            @PathVariable("deckId") String deckId,
             @RequestBody CardGenerationRequestDTO requestDTO) {
         
         AIGenerationRequest generationRequest = cardGenerationService.createGenerationRequest(
@@ -68,8 +68,8 @@ public class CardGenerationController {
      */
     @PostMapping("/{requestId}/documents")
     public ResponseEntity<?> uploadDocument(
-            @PathVariable String deckId,
-            @PathVariable String requestId,
+            @PathVariable("deckId") String deckId,
+            @PathVariable("requestId") String requestId,
             @RequestParam("file") MultipartFile file) {
         
         try {
@@ -95,8 +95,8 @@ public class CardGenerationController {
      */
     @PostMapping("/{requestId}/process")
     public ResponseEntity<?> processGeneration(
-            @PathVariable String deckId,
-            @PathVariable String requestId) {
+            @PathVariable("deckId") String deckId,
+            @PathVariable("requestId") String requestId) {
         
         try {
             AIGenerationRequest updatedRequest = cardGenerationService.processGenerationRequest(requestId);
@@ -118,8 +118,8 @@ public class CardGenerationController {
      */
     @GetMapping("/{requestId}")
     public ResponseEntity<?> getGenerationStatus(
-            @PathVariable String deckId,
-            @PathVariable String requestId) {
+            @PathVariable("deckId") String deckId,
+            @PathVariable("requestId") String requestId) {
         
         try {
             AIGenerationRequest generationRequest = cardGenerationService.getGenerationRequest(requestId);
@@ -138,8 +138,8 @@ public class CardGenerationController {
      */
     @GetMapping("/{requestId}/cards")
     public ResponseEntity<?> getGeneratedCards(
-            @PathVariable String deckId,
-            @PathVariable String requestId) {
+            @PathVariable("deckId") String deckId,
+            @PathVariable("requestId") String requestId) {
         
         try {
             List<AIGeneratedCard> generatedCards = cardGenerationService.getGeneratedCards(requestId);
@@ -164,9 +164,9 @@ public class CardGenerationController {
      */
     @PutMapping("/{requestId}/cards/{cardId}")
     public ResponseEntity<?> updateGeneratedCard(
-            @PathVariable String deckId,
-            @PathVariable String requestId,
-            @PathVariable String cardId,
+            @PathVariable("deckId") String deckId,
+            @PathVariable("requestId") String requestId,
+            @PathVariable("cardId") String cardId,
             @RequestBody AIGeneratedCardDTO cardDTO) {
         
         try {
@@ -194,8 +194,8 @@ public class CardGenerationController {
      */
     @PostMapping("/{requestId}/save")
     public ResponseEntity<?> saveGeneratedCards(
-            @PathVariable String deckId,
-            @PathVariable String requestId) {
+            @PathVariable("deckId") String deckId,
+            @PathVariable("requestId") String requestId) {
         
         try {
             List<Card> savedCards = cardGenerationService.saveGeneratedCards(deckId, requestId);
