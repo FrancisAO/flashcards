@@ -47,7 +47,7 @@ public class FileUploadService {
     @Value("${app.upload.base-path:uploads}")
     private String uploadBasePath;
 
-    @Value("${app.upload.max-file-size:50485760}") // 50MB default
+    @Value("${app.upload.max-file-size:52428800}") // 50MB default
     private long maxFileSize;
 
     @Value("${app.upload.allowed-extensions:pdf,png,jpg,jpeg,gif,bmp,tiff,txt,docx,doc}")
