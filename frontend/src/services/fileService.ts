@@ -153,7 +153,7 @@ export const uploadLargeFile = async (
 
 // Datei-Download und Metadaten
 export const downloadFile = async (fileId: string): Promise<Blob> => {
-  const response = await axios.get(`${API_URL}/${fileId}/download`, {
+  const response = await axios.get(`${API_URL}/download/${fileId}`, {
     responseType: 'blob'
   });
   return response.data;
