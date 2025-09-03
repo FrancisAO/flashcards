@@ -3,8 +3,11 @@ package com.fao.flashcards.api.controller;
 import com.fao.flashcards.api.dto.DTOMapper;
 import com.fao.flashcards.api.dto.FileUploadResponse;
 import com.fao.flashcards.api.dto.ProjectFileDTO;
+import com.fao.flashcards.domain.model.ExtractedText;
 import com.fao.flashcards.domain.model.ProjectFile;
 import com.fao.flashcards.domain.service.FileUploadService;
+import com.fao.flashcards.domain.service.OCRService;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +45,13 @@ public class FileController {
 
     private final FileUploadService fileUploadService;
     private final DTOMapper dtoMapper;
+    private final OCRService ocrService;
 
     @Autowired
-    public FileController(FileUploadService fileUploadService, DTOMapper dtoMapper) {
+    public FileController(FileUploadService fileUploadService, DTOMapper dtoMapper, OCRService ocrService) {
         this.fileUploadService = fileUploadService;
         this.dtoMapper = dtoMapper;
+        this.ocrService = ocrService;
     }
 
     
@@ -345,7 +350,18 @@ public class FileController {
             List<ProjectFileDTO> fileDTOs = projectFilePage.getContent().stream()
                 .map(dtoMapper::toDTO)
                 .collect(Collectors.toList());
-            
+
+            // Extrahierte Texte ermitteln
+            List<ExtractedText> extractedTexts = ocrService.getProjectExtractedTexts(projectId);
+            for(ExtractedText text : extractedTexts) {
+                for(ProjectFileDTO fileDTO : fileDTOs) {
+                    if(text.getProjectFile().getId().equals(fileDTO.getId())) {
+                        fileDTO.setHasExtractedText(true);
+                        break;
+                    }
+                }
+            }
+
             PaginatedResponse<ProjectFileDTO> response = new PaginatedResponse<>(
                 fileDTOs,
                 projectFilePage.getNumber(),

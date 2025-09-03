@@ -1,4 +1,10 @@
 # User Stories
+
+## Offene Punkte
+ProjectDetail/Hochgeladene Dateien:
+- Feature "Vorschau" noch nicht implementiert (kein Mapping im FileController).
+- Feature "OCR-Einstellungen" noch nicht implementiert.
+
 ## OCR Extraktion
 Als Student möchte ich, dass Text aus Bildern die ich zur verfügung stelle, extrahiert und gespeichert wird, damit ich aus diesem Text später Karteikarten
 erstellen kann.

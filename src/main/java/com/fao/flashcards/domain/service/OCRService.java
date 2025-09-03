@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -84,6 +85,8 @@ public class OCRService {
                 // Ergebnis in ExtractedText übertragen
                 extractedText.setExtractedContent(processedResult.getApiResponse());
                 extractedText.setExtractionSource(determineExtractionSource(projectFile));
+                extractedText.setExtractedAt(LocalDateTime.now());
+
 
                 // OCRResult aktualisieren
                 ocrResult.markAsSuccess(
@@ -384,7 +387,9 @@ public class OCRService {
      * Hilfsmethode: Initialen OCRResult erstellen.
      */
     private OCRResult createInitialOCRResult(ExtractedText extractedText) {
-        return ocrResultRepository.save(new OCRResult(extractedText, OCRStatus.PENDING));
+        OCRResult result = new OCRResult(extractedText, OCRStatus.PENDING);
+        result.setCreatedAt(LocalDateTime.now());
+        return ocrResultRepository.save(result);
     }
 
     /**

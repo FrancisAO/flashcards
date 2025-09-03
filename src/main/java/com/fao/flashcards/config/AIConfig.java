@@ -5,6 +5,8 @@ import com.fao.flashcards.domain.port.OCRProcessingPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -35,16 +37,9 @@ public class AIConfig {
      */
     @Bean("ocrRestTemplate")
     public RestTemplate ocrRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
         
-        // Erweiterte Timeouts für OCR-Verarbeitung da diese länger dauern kann
-        restTemplate.getInterceptors().add((request, body, execution) -> {
-            request.getHeaders().add("Content-Type", "application/json");
-            if (mistralApiKey != null && !mistralApiKey.isEmpty()) {
-                request.getHeaders().add("Authorization", "Bearer " + mistralApiKey);
-            }
-            return execution.execute(request, body);
-        });
+        
         
         return restTemplate;
     }

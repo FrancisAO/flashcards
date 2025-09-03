@@ -228,10 +228,10 @@ const FileList: React.FC<FileListProps> = ({
                         variant="outlined" 
                       />
                       <Chip 
-                        label={`${file.extractedTextCount || 0} Texte`} 
+                        label={`${file.hasExtractedText ? 1 : 0} Text`} 
                         size="small" 
                         variant="outlined"
-                        color={file.extractedTextCount && file.extractedTextCount > 0 ? 'success' : 'default'}
+                        color={file.hasExtractedText ? 'success' : 'default'}
                       />
                     </Box>
                     <Typography variant="caption" color="text.secondary">

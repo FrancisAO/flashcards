@@ -1,5 +1,6 @@
 package com.fao.flashcards.adapter.ocr.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fao.flashcards.domain.model.OCROptions;
 
@@ -9,6 +10,7 @@ import java.util.List;
  * DTO für Mistral OCR API Request.
  * Repräsentiert die JSON-Struktur für OCR-Anfragen an die Mistral API.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MistralOCRRequest {
     
     @JsonProperty("model")

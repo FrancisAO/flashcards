@@ -30,7 +30,7 @@ export const processOCR = async (request: OCRProcessRequest): Promise<OCRProcess
 };
 
 export const processSingleFile = async (fileId: string, options?: OCROptions): Promise<OCRResult> => {
-  const response = await axios.post(`${OCR_API_URL}/process/single`, {
+  const response = await axios.post(`${OCR_API_URL}/extract/${fileId}`, {
     fileId,
     options: options || {}
   });
@@ -41,7 +41,7 @@ export const processBatchFiles = async (
   fileIds: string[], 
   options?: OCROptions
 ): Promise<OCRBatchOperation> => {
-  const response = await axios.post(`${OCR_API_URL}/process/batch`, {
+  const response = await axios.post(`${OCR_API_URL}/extract/batch`, {
     fileIds,
     options: options || {}
   });
@@ -49,8 +49,8 @@ export const processBatchFiles = async (
 };
 
 // Status-Polling für asynchrone Operationen
-export const getOCRResult = async (resultId: string): Promise<OCRResultDTO> => {
-  const response = await axios.get(`${OCR_API_URL}/results/${resultId}`);
+export const getOCRResult = async (fileId: string): Promise<OCRResultDTO> => {
+  const response = await axios.get(`${OCR_API_URL}/status/${fileId}`);
   return response.data;
 };
 
@@ -85,7 +85,7 @@ export const pollOCRStatus = (
       const result = await getOCRResult(resultId);
       onUpdate(result);
 
-      if (result.status === OCRStatus.COMPLETED || result.status === OCRStatus.FAILED) {
+      if (result.status === OCRStatus.SUCCESS || result.status === OCRStatus.FAILED) {
         clearInterval(interval);
         onComplete(result);
       }
@@ -110,7 +110,7 @@ export const pollBatchStatus = (
       const batch = await getBatchOperationStatus(batchId);
       onUpdate(batch);
 
-      if (batch.status === OCRStatus.COMPLETED || batch.status === OCRStatus.FAILED) {
+      if (batch.status === OCRStatus.SUCCESS || batch.status === OCRStatus.FAILED) {
         clearInterval(interval);
         onComplete(batch);
       }
@@ -423,7 +423,7 @@ export const getStatusColor = (status: OCRStatus): string => {
       return '#ffa726'; // Orange
     case OCRStatus.PROCESSING:
       return '#42a5f5'; // Blue
-    case OCRStatus.COMPLETED:
+    case OCRStatus.SUCCESS:
       return '#66bb6a'; // Green
     case OCRStatus.FAILED:
       return '#ef5350'; // Red
@@ -438,7 +438,7 @@ export const getStatusIcon = (status: OCRStatus): string => {
       return 'schedule';
     case OCRStatus.PROCESSING:
       return 'hourglass_empty';
-    case OCRStatus.COMPLETED:
+    case OCRStatus.SUCCESS:
       return 'check_circle';
     case OCRStatus.FAILED:
       return 'error';

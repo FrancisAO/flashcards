@@ -19,7 +19,7 @@ export enum ExtractionSource {
 export enum OCRStatus {
   PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
-  COMPLETED = 'COMPLETED',
+  SUCCESS = 'SUCCESS',
   FAILED = 'FAILED'
 }
 
@@ -44,7 +44,7 @@ export interface ProjectFile {
   contentType: string;
   fileSize: number;
   uploadedAt?: string;
-  extractedTextCount?: number;
+  hasExtractedText?: boolean;
 }
 
 export interface ExtractedText {

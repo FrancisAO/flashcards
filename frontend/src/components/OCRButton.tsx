@@ -55,15 +55,16 @@ const OCRButton: React.FC<OCRButtonProps> = ({
       setOcrResult(result);
 
       // Status-Polling starten
+      
       const cleanup = ocrService.pollOCRStatus(
-        result.id!,
+        fileId!,
         (updatedResult) => {
           setOcrResult(updatedResult);
         },
         (finalResult) => {
           setOcrResult(finalResult);
           setIsProcessing(false);
-          if (finalResult.status === OCRStatus.COMPLETED) {
+          if (finalResult.status === OCRStatus.SUCCESS) {
             onOCRComplete?.();
           }
           cleanup();
@@ -105,7 +106,7 @@ const OCRButton: React.FC<OCRButtonProps> = ({
       );
     }
 
-    if (ocrResult?.status === OCRStatus.COMPLETED) {
+    if (ocrResult?.status === OCRStatus.SUCCESS) {
       return (
         <>
           <PsychologyIcon sx={{ mr: size === 'small' ? 0 : 1 }} />
@@ -123,7 +124,7 @@ const OCRButton: React.FC<OCRButtonProps> = ({
   };
 
   const getButtonColor = () => {
-    if (ocrResult?.status === OCRStatus.COMPLETED) {
+    if (ocrResult?.status === OCRStatus.SUCCESS) {
       return 'success' as const;
     }
     if (ocrResult?.status === OCRStatus.FAILED || error) {
@@ -313,7 +314,7 @@ const OCRButton: React.FC<OCRButtonProps> = ({
           <Button onClick={() => setStatusDialogOpen(false)}>
             Schließen
           </Button>
-          {ocrResult?.status === OCRStatus.COMPLETED && (
+          {ocrResult?.status === OCRStatus.SUCCESS && (
             <Button
               onClick={() => {
                 setStatusDialogOpen(false);
