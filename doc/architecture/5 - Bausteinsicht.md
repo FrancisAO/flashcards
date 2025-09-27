@@ -7,6 +7,10 @@ Dieses Kapitel beschreibt die statische Zerlegung des Systems in Bausteine (Modu
 Die Bausteinsicht zeigt die statische Struktur des Systems und wie es in Bausteine zerlegt ist. Sie dokumentiert die Komponenten des Systems, ihre Verantwortlichkeiten und ihre Beziehungen zueinander.
 
 ## 5.1 Whitebox Gesamtsystem
+Es gibt derzeit die folgenden Bausteine:
+- Flashcards: Karteikarten & Decks, in denen diese organisiert sind
+- OCR-Projects: Projekte um Texte aus Bilder zu extrahieren 
+- Learning: Lernmodus von Karteikarten
 
 ## 5.4 Whitebox Lernalgorithmus-Modul
 

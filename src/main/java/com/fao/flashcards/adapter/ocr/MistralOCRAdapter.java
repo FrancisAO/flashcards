@@ -1,9 +1,9 @@
 package com.fao.flashcards.adapter.ocr;
 
 import com.fao.flashcards.adapter.ocr.dto.*;
-import com.fao.flashcards.domain.exception.OCRProcessingException;
-import com.fao.flashcards.domain.model.*;
-import com.fao.flashcards.domain.port.OCRProcessingPort;
+import com.fao.flashcards.application.model.*;
+import com.fao.flashcards.application.port.OCRProcessingPort;
+import com.fao.flashcards.application.port.exception.OCRProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.tomcat.util.http.parser.Authorization;

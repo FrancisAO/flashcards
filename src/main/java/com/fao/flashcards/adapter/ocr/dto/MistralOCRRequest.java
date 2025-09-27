@@ -1,8 +1,8 @@
 package com.fao.flashcards.adapter.ocr.dto;
 
+import com.fao.flashcards.application.model.OCROptions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fao.flashcards.domain.model.OCROptions;
 
 import java.util.List;
 

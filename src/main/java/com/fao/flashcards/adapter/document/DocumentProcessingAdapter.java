@@ -1,6 +1,5 @@
 package com.fao.flashcards.adapter.document;
 
-import com.fao.flashcards.domain.port.DocumentProcessingPort;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -8,6 +7,8 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Component;
+
+import com.fao.flashcards.application.port.DocumentProcessingPort;
 
 import java.io.InputStream;
 

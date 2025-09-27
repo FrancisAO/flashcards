@@ -1,9 +1,11 @@
 package com.fao.flashcards.api.controller;
 
-import com.fao.flashcards.api.dto.DeckCardDTO;
-import com.fao.flashcards.api.dto.DeckDTO;
-import com.fao.flashcards.api.dto.DeckWithCardsDTO;
-import com.fao.flashcards.domain.service.DeckService;
+import com.fao.flashcards.adapter.rest.flashcards.DeckController;
+import com.fao.flashcards.application.port.dto.DeckCardDTO;
+import com.fao.flashcards.application.port.dto.DeckDTO;
+import com.fao.flashcards.application.port.dto.DeckWithCardsDTO;
+import com.fao.flashcards.application.service.DeckService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

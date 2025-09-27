@@ -1,8 +1,10 @@
 package com.fao.flashcards.domain.service;
 
-import com.fao.flashcards.api.dto.CardDTO;
-import com.fao.flashcards.domain.model.Card;
-import com.fao.flashcards.domain.repository.CardRepository;
+import com.fao.flashcards.adapter.repository.CardRepository;
+import com.fao.flashcards.application.model.Card;
+import com.fao.flashcards.application.port.dto.CardDTO;
+import com.fao.flashcards.application.service.CardService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,11 +1,12 @@
 package com.fao.flashcards.adapter.ai;
 
-import com.fao.flashcards.domain.port.AICardGenerationPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+
+import com.fao.flashcards.application.port.AICardGenerationPort;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,15 +1,16 @@
 package com.fao.flashcards.config;
 
-import com.fao.flashcards.domain.model.Card;
-import com.fao.flashcards.domain.model.Deck;
-import com.fao.flashcards.domain.model.DeckCard;
-import com.fao.flashcards.domain.repository.CardRepository;
-import com.fao.flashcards.domain.repository.DeckCardRepository;
-import com.fao.flashcards.domain.repository.DeckRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import com.fao.flashcards.adapter.repository.CardRepository;
+import com.fao.flashcards.adapter.repository.DeckCardRepository;
+import com.fao.flashcards.adapter.repository.DeckRepository;
+import com.fao.flashcards.application.model.Card;
+import com.fao.flashcards.application.model.Deck;
+import com.fao.flashcards.application.model.DeckCard;
 
 import java.util.Arrays;
 import java.util.HashSet;

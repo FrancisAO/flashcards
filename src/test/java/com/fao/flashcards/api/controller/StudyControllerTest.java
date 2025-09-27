@@ -1,8 +1,10 @@
 package com.fao.flashcards.api.controller;
 
-import com.fao.flashcards.api.dto.StudyCardDTO;
-import com.fao.flashcards.api.dto.StudyDeckDTO;
-import com.fao.flashcards.domain.service.StudyService;
+import com.fao.flashcards.adapter.rest.learning.StudyController;
+import com.fao.flashcards.application.port.dto.StudyCardDTO;
+import com.fao.flashcards.application.port.dto.StudyDeckDTO;
+import com.fao.flashcards.application.service.StudyService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

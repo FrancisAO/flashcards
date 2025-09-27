@@ -1,7 +1,7 @@
 package com.fao.flashcards.adapter.ocr.dto;
 
+import com.fao.flashcards.application.model.OCROptions;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fao.flashcards.domain.model.OCROptions;
 
 /**
  * DTO für Response-Format in Mistral OCR API Requests.

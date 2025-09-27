@@ -1,7 +1,8 @@
 package com.fao.flashcards.config;
 
 import com.fao.flashcards.adapter.ocr.MistralOCRAdapter;
-import com.fao.flashcards.domain.port.OCRProcessingPort;
+import com.fao.flashcards.application.port.OCRProcessingPort;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
