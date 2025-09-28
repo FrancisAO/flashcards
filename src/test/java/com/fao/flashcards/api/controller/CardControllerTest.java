@@ -1,8 +1,8 @@
 package com.fao.flashcards.api.controller;
 
-import com.fao.flashcards.adapter.rest.flashcards.CardController;
-import com.fao.flashcards.application.port.dto.CardDTO;
-import com.fao.flashcards.application.service.CardService;
+import com.fao.flashcards.cards.adapter.rest.CardController;
+import com.fao.flashcards.cards.application.port.dto.CardDTO;
+import com.fao.flashcards.cards.application.service.CardService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

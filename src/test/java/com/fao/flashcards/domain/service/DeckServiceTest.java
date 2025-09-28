@@ -1,14 +1,14 @@
 package com.fao.flashcards.domain.service;
 
-import com.fao.flashcards.adapter.repository.CardRepository;
-import com.fao.flashcards.adapter.repository.DeckCardRepository;
-import com.fao.flashcards.adapter.repository.DeckRepository;
-import com.fao.flashcards.application.model.Card;
-import com.fao.flashcards.application.model.Deck;
-import com.fao.flashcards.application.model.DeckCard;
-import com.fao.flashcards.application.port.dto.DeckDTO;
-import com.fao.flashcards.application.port.dto.DeckWithCardsDTO;
-import com.fao.flashcards.application.service.DeckService;
+import com.fao.flashcards.cards.adapter.repository.CardRepository;
+import com.fao.flashcards.cards.adapter.repository.DeckCardRepository;
+import com.fao.flashcards.cards.adapter.repository.DeckRepository;
+import com.fao.flashcards.cards.application.port.dto.DeckDTO;
+import com.fao.flashcards.cards.application.port.dto.DeckWithCardsDTO;
+import com.fao.flashcards.cards.application.service.DeckService;
+import com.fao.flashcards.cards.model.Card;
+import com.fao.flashcards.cards.model.Deck;
+import com.fao.flashcards.cards.model.DeckCard;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

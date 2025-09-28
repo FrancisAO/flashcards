@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import com.fao.flashcards.application.port.AICardGenerationPort;
+import com.fao.flashcards.cards.adapter.ai.DirectOpenRouterAIAdapter;
+import com.fao.flashcards.cards.application.port.out.AICardGenerationPort;
 
 import java.io.IOException;
 import java.nio.file.Files;

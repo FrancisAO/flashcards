@@ -1,10 +1,10 @@
 package com.fao.flashcards.api.controller;
 
-import com.fao.flashcards.adapter.rest.flashcards.DeckController;
-import com.fao.flashcards.application.port.dto.DeckCardDTO;
-import com.fao.flashcards.application.port.dto.DeckDTO;
-import com.fao.flashcards.application.port.dto.DeckWithCardsDTO;
-import com.fao.flashcards.application.service.DeckService;
+import com.fao.flashcards.cards.adapter.rest.DeckController;
+import com.fao.flashcards.cards.application.port.dto.DeckCardDTO;
+import com.fao.flashcards.cards.application.port.dto.DeckDTO;
+import com.fao.flashcards.cards.application.port.dto.DeckWithCardsDTO;
+import com.fao.flashcards.cards.application.service.DeckService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -3,7 +3,8 @@ package com.fao.flashcards.adapter.document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fao.flashcards.application.port.DocumentProcessingPort;
+import com.fao.flashcards.cards.adapter.document.DocumentProcessingAdapter;
+import com.fao.flashcards.cards.application.port.out.DocumentProcessingPort;
 
 import java.io.File;
 import java.io.FileInputStream;
