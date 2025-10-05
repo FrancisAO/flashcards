@@ -1,15 +1,12 @@
 package com.fao.flashcards.domain.service;
 
-import com.fao.flashcards.cards.adapter.repository.CardRepository;
-import com.fao.flashcards.cards.application.port.dto.CardDTO;
-import com.fao.flashcards.cards.application.service.CardService;
-import com.fao.flashcards.cards.model.Card;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -17,14 +14,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.fao.flashcards.cards.adapter.repository.JpaCardSpringDataRepository;
+import com.fao.flashcards.cards.application.port.dto.CardDTO;
+import com.fao.flashcards.cards.application.service.CardService;
+import com.fao.flashcards.cards.model.Card;
 
 class CardServiceTest {
 
     @Mock
-    private CardRepository cardRepository;
+    private JpaCardSpringDataRepository cardRepository;
 
     @InjectMocks
     private CardService cardService;
@@ -56,7 +60,7 @@ class CardServiceTest {
         assertEquals(testCard.getId(), result.get(0).getId());
         assertEquals(testCard.getFront(), result.get(0).getFront());
         assertEquals(testCard.getBack(), result.get(0).getBack());
-        
+
         verify(cardRepository, times(1)).findAll();
     }
 
@@ -73,7 +77,7 @@ class CardServiceTest {
         assertEquals(testCard.getId(), result.getId());
         assertEquals(testCard.getFront(), result.getFront());
         assertEquals(testCard.getBack(), result.getBack());
-        
+
         verify(cardRepository, times(1)).findById("test-id");
     }
 
@@ -102,7 +106,7 @@ class CardServiceTest {
         assertEquals(cardDTO.getFront(), result.getFront());
         assertEquals(cardDTO.getBack(), result.getBack());
         assertEquals(cardDTO.getTags(), result.getTags());
-        
+
         verify(cardRepository, times(1)).save(any(Card.class));
     }
 

@@ -1,60 +1,57 @@
 package com.fao.flashcards.ocr.application.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
+
+import com.fao.flashcards.ocr.application.port.out.ExtractedTextRepository;
+import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
+import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
+import com.fao.flashcards.ocr.model.Project;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-
-import com.fao.flashcards.ocr.application.port.out.ExtractedTextOutputPort;
-import com.fao.flashcards.ocr.application.port.out.ProjectFileOutputPort;
-import com.fao.flashcards.ocr.application.port.out.ProjectOutputPort;
-import com.fao.flashcards.ocr.model.Project;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Service für OCR-Projekt-Management.
- * Verwaltet CRUD-Operationen, Tag-Management und Statistik-Updates für Projekte.
+ * Verwaltet CRUD-Operationen, Tag-Management und Statistik-Updates für
+ * Projekte.
  */
-@Service
 @Validated
 @Slf4j
 public class ProjectService {
 
-    private final ProjectOutputPort projectRepository;
-    private final ProjectFileOutputPort projectFileRepository;
-    private final ExtractedTextOutputPort extractedTextRepository;
+    private final ProjectRepository projectOutputPort;
+    private final ProjectFileRepository projectFileOutputPort;
+    private final ExtractedTextRepository projectTextOutputPort;
 
-    @Autowired
-    public ProjectService(ProjectOutputPort projectRepository,
-                         ProjectFileOutputPort projectFileRepository,
-                         ExtractedTextOutputPort extractedTextRepository) {
-        this.projectRepository = projectRepository;
-        this.projectFileRepository = projectFileRepository;
-        this.extractedTextRepository = extractedTextRepository;
+    public ProjectService(ProjectRepository projectRepository,
+            ProjectFileRepository projectFileRepository,
+            ExtractedTextRepository extractedTextRepository) {
+        this.projectOutputPort = projectRepository;
+        this.projectFileOutputPort = projectFileRepository;
+        this.projectTextOutputPort = extractedTextRepository;
     }
 
     /**
      * Erstellt ein neues Projekt.
      */
-    @Transactional
     public Project createProject(@Valid @NotNull Project project) {
         log.info("Erstelle neues Projekt: {}", project.getName());
-        
-        if (projectRepository.existsByName(project.getName())) {
-            throw new IllegalArgumentException("Ein Projekt mit dem Namen '" + project.getName() + "' existiert bereits");
+
+        if (projectOutputPort.existsByName(project.getName())) {
+            throw new IllegalArgumentException(
+                    "Ein Projekt mit dem Namen '" + project.getName() + "' existiert bereits");
         }
-        
-        Project savedProject = projectRepository.save(project);
+
+        Project savedProject = projectOutputPort.save(project);
         log.info("Projekt erfolgreich erstellt mit ID: {}", savedProject.getId());
         return savedProject;
     }
@@ -62,74 +59,69 @@ public class ProjectService {
     /**
      * Findet ein Projekt nach ID.
      */
-    @Transactional(readOnly = true)
     public Project getProjectById(@NotBlank String projectId) {
         log.debug("Suche Projekt mit ID: {}", projectId);
-        return projectRepository.findById(projectId)
+        return projectOutputPort.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Projekt mit ID " + projectId + " nicht gefunden"));
     }
 
     /**
      * Findet alle Projekte mit Paginierung.
      */
-    @Transactional(readOnly = true)
     public Page<Project> getAllProjects(Pageable pageable) {
         log.debug("Lade alle Projekte mit Paginierung: {}", pageable);
-        return projectRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return projectOutputPort.findAllByOrderByCreatedAtDesc(pageable);
     }
 
     /**
      * Sucht Projekte nach Namen oder Beschreibung.
      */
-    @Transactional(readOnly = true)
     public Page<Project> searchProjects(@NotBlank String searchTerm, Pageable pageable) {
         log.debug("Suche Projekte mit Begriff: {}", searchTerm);
-        return projectRepository.searchByNameOrDescription(searchTerm, pageable);
+        return projectOutputPort.searchByNameOrDescription(searchTerm, pageable);
     }
 
     /**
      * Findet Projekte nach Tags.
      */
-    @Transactional(readOnly = true)
     public List<Project> getProjectsByTags(@NotNull Set<String> tags) {
         log.debug("Suche Projekte mit Tags: {}", tags);
         if (tags.isEmpty()) {
             return List.of();
         }
-        return projectRepository.findByTagsIn(tags);
+        return projectOutputPort.findByTagsIn(tags);
     }
 
     /**
      * Findet Projekte die alle angegebenen Tags enthalten.
      */
-    @Transactional(readOnly = true)
     public List<Project> getProjectsByAllTags(@NotNull Set<String> tags) {
         log.debug("Suche Projekte mit allen Tags: {}", tags);
         if (tags.isEmpty()) {
             return List.of();
         }
-        return projectRepository.findByAllTags(tags, tags.size());
+        return projectOutputPort.findByAllTags(tags, tags.size());
     }
 
     /**
      * Aktualisiert ein bestehendes Projekt.
      */
-    @Transactional
     public Project updateProject(@NotBlank String projectId, @Valid @NotNull Project projectUpdate) {
         log.info("Aktualisiere Projekt mit ID: {}", projectId);
-        
+
         Project existingProject = getProjectById(projectId);
-        
+
         // Prüfe Name-Eindeutigkeit nur wenn sich der Name geändert hat
-        if (!existingProject.getName().equals(projectUpdate.getName()) && 
-            projectRepository.existsByName(projectUpdate.getName())) {
-            throw new IllegalArgumentException("Ein Projekt mit dem Namen '" + projectUpdate.getName() + "' existiert bereits");
+        if (!existingProject.getName().equals(projectUpdate.getName()) &&
+                projectOutputPort.existsByName(projectUpdate.getName())) {
+            throw new IllegalArgumentException(
+                    "Ein Projekt mit dem Namen '" + projectUpdate.getName() + "' existiert bereits");
         }
-        
+
         existingProject.setName(projectUpdate.getName());
         existingProject.setDescription(projectUpdate.getDescription());
-        
-        Project savedProject = projectRepository.save(existingProject);
+
+        Project savedProject = projectOutputPort.save(existingProject);
         log.info("Projekt erfolgreich aktualisiert: {}", savedProject.getId());
         return savedProject;
     }
@@ -137,14 +129,13 @@ public class ProjectService {
     /**
      * Fügt einen Tag zu einem Projekt hinzu.
      */
-    @Transactional
     public Project addTag(@NotBlank String projectId, @NotBlank String tag) {
         log.info("Füge Tag '{}' zu Projekt {} hinzu", tag, projectId);
-        
+
         Project project = getProjectById(projectId);
         project.getTags().add(tag.trim().toLowerCase());
-        
-        Project savedProject = projectRepository.save(project);
+
+        Project savedProject = projectOutputPort.save(project);
         log.debug("Tag erfolgreich hinzugefügt zu Projekt: {}", projectId);
         return savedProject;
     }
@@ -152,14 +143,13 @@ public class ProjectService {
     /**
      * Entfernt einen Tag von einem Projekt.
      */
-    @Transactional
     public Project removeTag(@NotBlank String projectId, @NotBlank String tag) {
         log.info("Entferne Tag '{}' von Projekt {}", tag, projectId);
-        
+
         Project project = getProjectById(projectId);
         project.getTags().remove(tag.trim().toLowerCase());
-        
-        Project savedProject = projectRepository.save(project);
+
+        Project savedProject = projectOutputPort.save(project);
         log.debug("Tag erfolgreich entfernt von Projekt: {}", projectId);
         return savedProject;
     }
@@ -167,17 +157,16 @@ public class ProjectService {
     /**
      * Setzt alle Tags eines Projekts.
      */
-    @Transactional
     public Project setTags(@NotBlank String projectId, @NotNull Set<String> tags) {
         log.info("Setze Tags für Projekt {}: {}", projectId, tags);
-        
+
         Project project = getProjectById(projectId);
         project.getTags().clear();
         tags.stream()
-            .map(tag -> tag.trim().toLowerCase())
-            .forEach(project.getTags()::add);
-        
-        Project savedProject = projectRepository.save(project);
+                .map(tag -> tag.trim().toLowerCase())
+                .forEach(project.getTags()::add);
+
+        Project savedProject = projectOutputPort.save(project);
         log.debug("Tags erfolgreich gesetzt für Projekt: {}", projectId);
         return savedProject;
     }
@@ -185,123 +174,114 @@ public class ProjectService {
     /**
      * Aktualisiert die Datei-Anzahl eines Projekts.
      */
-    @Transactional
     public void updateFileCount(@NotBlank String projectId) {
         log.debug("Aktualisiere Datei-Anzahl für Projekt: {}", projectId);
-        
+
         Project project = getProjectById(projectId);
-        long fileCount = projectFileRepository.countByProjectId(projectId);
-        
+        long fileCount = projectFileOutputPort.countByProjectId(projectId);
+
         project.setFileCount((int) fileCount);
-        projectRepository.save(project);
-        
+        projectOutputPort.save(project);
+
         log.debug("Datei-Anzahl für Projekt {} aktualisiert: {}", projectId, fileCount);
     }
 
     /**
      * Aktualisiert die ExtractedText-Anzahl eines Projekts.
      */
-    @Transactional
     public void updateExtractedTextCount(@NotBlank String projectId) {
         log.debug("Aktualisiere ExtractedText-Anzahl für Projekt: {}", projectId);
-        
+
         Project project = getProjectById(projectId);
-        long extractedTextCount = extractedTextRepository.countByProjectId(projectId);
-        
+        long extractedTextCount = projectTextOutputPort.countByProjectId(projectId);
+
         project.setExtractedTextCount((int) extractedTextCount);
-        projectRepository.save(project);
-        
+        projectOutputPort.save(project);
+
         log.debug("ExtractedText-Anzahl für Projekt {} aktualisiert: {}", projectId, extractedTextCount);
     }
 
     /**
      * Aktualisiert beide Statistiken eines Projekts.
      */
-    @Transactional
     public void updateProjectStatistics(@NotBlank String projectId) {
         log.debug("Aktualisiere Statistiken für Projekt: {}", projectId);
-        
+
         Project project = getProjectById(projectId);
-        long fileCount = projectFileRepository.countByProjectId(projectId);
-        long extractedTextCount = extractedTextRepository.countByProjectId(projectId);
-        
+        long fileCount = projectFileOutputPort.countByProjectId(projectId);
+        long extractedTextCount = projectTextOutputPort.countByProjectId(projectId);
+
         project.setFileCount((int) fileCount);
         project.setExtractedTextCount((int) extractedTextCount);
-        projectRepository.save(project);
-        
-        log.debug("Statistiken für Projekt {} aktualisiert - Dateien: {}, ExtractedTexts: {}", 
-                 projectId, fileCount, extractedTextCount);
+        projectOutputPort.save(project);
+
+        log.debug("Statistiken für Projekt {} aktualisiert - Dateien: {}, ExtractedTexts: {}",
+                projectId, fileCount, extractedTextCount);
     }
 
     /**
      * Löscht ein Projekt.
      */
-    @Transactional
     public void deleteProject(@NotBlank String projectId) {
         log.info("Lösche Projekt mit ID: {}", projectId);
-        
+
         Project project = getProjectById(projectId);
-        
+
         // Prüfe ob das Projekt Dateien oder extrahierte Texte enthält
-        long fileCount = projectFileRepository.countByProjectId(projectId);
+        long fileCount = projectFileOutputPort.countByProjectId(projectId);
         if (fileCount > 0) {
-            throw new IllegalStateException("Projekt kann nicht gelöscht werden, da es noch " + fileCount + " Datei(en) enthält");
+            throw new IllegalStateException(
+                    "Projekt kann nicht gelöscht werden, da es noch " + fileCount + " Datei(en) enthält");
         }
-        
-        projectRepository.delete(project);
+
+        projectOutputPort.delete(project);
         log.info("Projekt erfolgreich gelöscht: {}", projectId);
     }
 
     /**
      * Findet alle verwendeten Tags.
      */
-    @Transactional(readOnly = true)
     public List<String> getAllUsedTags() {
         log.debug("Lade alle verwendeten Tags");
-        return projectRepository.findAllUsedTags();
+        return projectOutputPort.findAllUsedTags();
     }
 
     /**
      * Findet Projekte ohne extrahierte Texte.
      */
-    @Transactional(readOnly = true)
     public List<Project> getProjectsWithoutExtractedTexts() {
         log.debug("Lade Projekte ohne extrahierte Texte");
-        return projectRepository.findProjectsWithoutExtractedTexts();
+        return projectOutputPort.findProjectsWithoutExtractedTexts();
     }
 
     /**
      * Findet Projekte mit extrahierten Texten.
      */
-    @Transactional(readOnly = true)
     public List<Project> getProjectsWithExtractedTexts() {
         log.debug("Lade Projekte mit extrahierten Texten");
-        return projectRepository.findProjectsWithExtractedTexts();
+        return projectOutputPort.findProjectsWithExtractedTexts();
     }
 
     /**
      * Findet Projekte die nach einem bestimmten Datum erstellt wurden.
      */
-    @Transactional(readOnly = true)
     public List<Project> getProjectsCreatedAfter(@NotNull LocalDateTime dateTime) {
         log.debug("Lade Projekte erstellt nach: {}", dateTime);
-        return projectRepository.findByCreatedAtAfter(dateTime);
+        return projectOutputPort.findByCreatedAtAfter(dateTime);
     }
 
     /**
      * Zählt Projekte mit einem bestimmten Tag.
      */
-    @Transactional(readOnly = true)
     public long countProjectsByTag(@NotBlank String tag) {
         log.debug("Zähle Projekte mit Tag: {}", tag);
-        return projectRepository.countByTag(tag);
+        return projectOutputPort.countByTag(tag);
     }
 
     /**
      * Prüft ob ein Projektname bereits existiert.
      */
-    @Transactional(readOnly = true)
     public boolean existsByName(@NotBlank String name) {
-        return projectRepository.existsByName(name);
+        return projectOutputPort.existsByName(name);
     }
 }

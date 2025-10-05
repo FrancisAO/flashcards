@@ -1,26 +1,5 @@
 package com.fao.flashcards.cards.application.service;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fao.flashcards.cards.model.FileType;
-import com.fao.flashcards.ocr.application.port.out.ProjectFileOutputPort;
-import com.fao.flashcards.ocr.application.port.out.ProjectOutputPort;
-import com.fao.flashcards.ocr.application.service.ProjectService;
-import com.fao.flashcards.ocr.model.Project;
-import com.fao.flashcards.ocr.model.ProjectFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,21 +7,48 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fao.flashcards.cards.model.FileType;
+import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
+import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
+import com.fao.flashcards.ocr.application.service.ProjectService;
+import com.fao.flashcards.ocr.model.Project;
+import com.fao.flashcards.ocr.model.ProjectFile;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Service für Datei-Upload-Verarbeitung.
- * Verwaltet Datei-Uploads, Validierung, Speicherung und Storage-Path-Generierung.
+ * Verwaltet Datei-Uploads, Validierung, Speicherung und
+ * Storage-Path-Generierung.
  */
 @Service
 @Validated
 @Slf4j
 public class FileUploadService {
 
-    private final ProjectFileOutputPort projectFileRepository;
-    private final ProjectOutputPort projectRepository;
+    private final ProjectFileRepository projectFileRepository;
+    private final ProjectRepository projectRepository;
     private final ProjectService projectService;
 
     // Konfigurierbare Werte
@@ -57,31 +63,27 @@ public class FileUploadService {
 
     // Unterstützte MIME-Types für verschiedene Dateitypen
     private static final Map<FileType, Set<String>> SUPPORTED_MIME_TYPES = Map.of(
-        FileType.IMAGE, Set.of(
-            "image/jpeg", "image/jpg", "image/png", "image/gif",
-            "image/bmp", "image/tiff", "image/tif", "image/webp"
-        ),
-        FileType.DOCUMENT, Set.of(
-            "application/pdf",
-            "text/plain", "text/csv",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/msword",
-            "application/vnd.oasis.opendocument.text"
-        )
-    );
+            FileType.IMAGE, Set.of(
+                    "image/jpeg", "image/jpg", "image/png", "image/gif",
+                    "image/bmp", "image/tiff", "image/tif", "image/webp"),
+            FileType.DOCUMENT, Set.of(
+                    "application/pdf",
+                    "text/plain", "text/csv",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "application/msword",
+                    "application/vnd.oasis.opendocument.text"));
 
     // Gefährliche Dateiendungen die nicht erlaubt sind
     private static final Set<String> DANGEROUS_EXTENSIONS = Set.of(
-        "exe", "bat", "cmd", "com", "pif", "scr", "vbs", "js", "jar", "sh", "ps1"
-    );
+            "exe", "bat", "cmd", "com", "pif", "scr", "vbs", "js", "jar", "sh", "ps1");
 
     // Pattern für sichere Dateinamen
     private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._-]+$");
 
     @Autowired
-    public FileUploadService(ProjectFileOutputPort projectFileRepository,
-                           ProjectOutputPort projectRepository,
-                           ProjectService projectService) {
+    public FileUploadService(ProjectFileRepository projectFileRepository,
+            ProjectRepository projectRepository,
+            ProjectService projectService) {
         this.projectFileRepository = projectFileRepository;
         this.projectRepository = projectRepository;
         this.projectService = projectService;
@@ -90,7 +92,6 @@ public class FileUploadService {
     /**
      * Verarbeitet einen Datei-Upload für ein bestimmtes Projekt.
      */
-    @Transactional
     public ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFile file) throws IOException {
         log.info("Starte Datei-Upload für Projekt {}: {}", projectId, file.getOriginalFilename());
 
@@ -112,16 +113,15 @@ public class FileUploadService {
 
         // ProjectFile-Entity erstellen und speichern
         ProjectFile projectFile = new ProjectFile(
-            project,
-            file.getOriginalFilename(),
-            file.getContentType(),
-            file.getSize(),
-            actualPath.toString(),
-            fileType
-        );
+                project,
+                file.getOriginalFilename(),
+                file.getContentType(),
+                file.getSize(),
+                actualPath.toString(),
+                fileType);
 
         ProjectFile savedProjectFile = projectFileRepository.save(projectFile);
-        
+
         // Projekt-Statistiken aktualisieren
         projectService.updateFileCount(projectId);
 
@@ -139,10 +139,9 @@ public class FileUploadService {
 
         if (file.getSize() > maxFileSize) {
             throw new IllegalArgumentException(
-                String.format("Datei ist zu groß. Maximum: %d MB, Aktuell: %.2f MB", 
-                             maxFileSize / 1024 / 1024, 
-                             file.getSize() / 1024.0 / 1024.0)
-            );
+                    String.format("Datei ist zu groß. Maximum: %d MB, Aktuell: %.2f MB",
+                            maxFileSize / 1024 / 1024,
+                            file.getSize() / 1024.0 / 1024.0));
         }
 
         String originalFilename = file.getOriginalFilename();
@@ -159,8 +158,7 @@ public class FileUploadService {
         Set<String> allowedExtensionSet = Set.of(allowedExtensions.toLowerCase().split(","));
         if (!allowedExtensionSet.contains(extension)) {
             throw new IllegalArgumentException(
-                "Dateierweiterung '" + extension + "' ist nicht erlaubt. Erlaubt: " + allowedExtensions
-            );
+                    "Dateierweiterung '" + extension + "' ist nicht erlaubt. Erlaubt: " + allowedExtensions);
         }
 
         // Dateiname-Sicherheit prüfen
@@ -210,23 +208,23 @@ public class FileUploadService {
     private String generateStoragePath(String projectId, String originalFilename) {
         // Zeitstempel für Eindeutigkeit
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        
+
         // UUID für zusätzliche Eindeutigkeit
         String uuid = UUID.randomUUID().toString().substring(0, 8);
-        
+
         // Dateiname bereinigen
         String sanitizedFilename = sanitizeFilename(originalFilename);
         String extension = getFileExtension(sanitizedFilename);
-        String nameWithoutExtension = sanitizedFilename.substring(0, 
-            sanitizedFilename.length() - extension.length() - 1);
-        
+        String nameWithoutExtension = sanitizedFilename.substring(0,
+                sanitizedFilename.length() - extension.length() - 1);
+
         // Path zusammenbauen: uploads/projektId/jahr/monat/timestamp_uuid_name.ext
         LocalDateTime now = LocalDateTime.now();
         String year = String.valueOf(now.getYear());
         String month = String.format("%02d", now.getMonthValue());
-        
+
         String filename = String.format("%s_%s_%s.%s", timestamp, uuid, nameWithoutExtension, extension);
-        
+
         return Paths.get(uploadBasePath, projectId, year, month, filename).toString();
     }
 
@@ -235,17 +233,17 @@ public class FileUploadService {
      */
     private Path saveFileToStorage(MultipartFile file, String storagePath) throws IOException {
         Path targetPath = Paths.get(storagePath);
-        
+
         // Verzeichnis erstellen falls nicht vorhanden
         Files.createDirectories(targetPath.getParent());
-        
+
         // Prüfen ob Datei bereits existiert
         if (Files.exists(targetPath)) {
             // Neuen eindeutigen Namen generieren
             String newName = generateUniqueFilename(targetPath);
             targetPath = targetPath.getParent().resolve(newName);
         }
-        
+
         // Datei kopieren
         try {
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -264,23 +262,23 @@ public class FileUploadService {
         String filename = originalPath.getFileName().toString();
         String extension = getFileExtension(filename);
         String nameWithoutExtension = filename.substring(0, filename.length() - extension.length() - 1);
-        
+
         int counter = 1;
         String newFilename;
         Path newPath;
-        
+
         do {
             newFilename = String.format("%s_(%d).%s", nameWithoutExtension, counter, extension);
             newPath = originalPath.getParent().resolve(newFilename);
             counter++;
         } while (Files.exists(newPath) && counter < 1000); // Sicherheitsgrenze
-        
+
         if (counter >= 1000) {
             // Fallback mit UUID
             String uuid = UUID.randomUUID().toString().substring(0, 8);
             newFilename = String.format("%s_%s.%s", nameWithoutExtension, uuid, extension);
         }
-        
+
         return newFilename;
     }
 
@@ -288,19 +286,20 @@ public class FileUploadService {
      * Bereinigt einen Dateinamen von gefährlichen Zeichen.
      */
     private String sanitizeFilename(String filename) {
-        if (filename == null) return "unnamed";
-        
+        if (filename == null)
+            return "unnamed";
+
         // Gefährliche Zeichen entfernen/ersetzen
         String sanitized = filename
-            .replaceAll("[<>:\"/\\\\|?*]", "_") // Windows-problematische Zeichen
-            .replaceAll("[\\x00-\\x1f\\x7f]", "") // Steuerzeichen
-            .replaceAll("\\s+", "_") // Leerzeichen durch Unterstriche
-            .replaceAll("_{2,}", "_") // Mehrfache Unterstriche reduzieren
-            .trim();
-        
+                .replaceAll("[<>:\"/\\\\|?*]", "_") // Windows-problematische Zeichen
+                .replaceAll("[\\x00-\\x1f\\x7f]", "") // Steuerzeichen
+                .replaceAll("\\s+", "_") // Leerzeichen durch Unterstriche
+                .replaceAll("_{2,}", "_") // Mehrfache Unterstriche reduzieren
+                .trim();
+
         // Führende/nachfolgende Punkte entfernen (Windows-Problem)
         sanitized = sanitized.replaceAll("^[._]+|[._]+$", "");
-        
+
         return sanitized.isEmpty() ? "unnamed" : sanitized;
     }
 
@@ -311,27 +310,26 @@ public class FileUploadService {
         if (filename == null || filename.isEmpty()) {
             return "";
         }
-        
+
         int lastDotIndex = filename.lastIndexOf('.');
         if (lastDotIndex == -1 || lastDotIndex == filename.length() - 1) {
             return "";
         }
-        
+
         return filename.substring(lastDotIndex + 1);
     }
 
     /**
      * Löscht eine ProjectFile und die zugehörige physische Datei.
      */
-    @Transactional
     public void deleteFile(@NotBlank String fileId) throws IOException {
         log.info("Lösche Datei mit ID: {}", fileId);
-        
+
         ProjectFile projectFile = projectFileRepository.findById(fileId)
                 .orElseThrow(() -> new EntityNotFoundException("Datei mit ID " + fileId + " nicht gefunden"));
-        
+
         String projectId = projectFile.getProject().getId();
-        
+
         // Physische Datei löschen
         try {
             Path filePath = Paths.get(projectFile.getStoragePath());
@@ -345,20 +343,19 @@ public class FileUploadService {
             log.error("Fehler beim Löschen der physischen Datei: {}", projectFile.getStoragePath(), e);
             throw new IOException("Physische Datei konnte nicht gelöscht werden: " + e.getMessage(), e);
         }
-        
+
         // Datenbank-Eintrag löschen
         projectFileRepository.delete(projectFile);
-        
+
         // Projekt-Statistiken aktualisieren
         projectService.updateFileCount(projectId);
-        
+
         log.info("Datei erfolgreich gelöscht: {}", fileId);
     }
 
     /**
      * Prüft ob eine Datei existiert.
      */
-    @Transactional(readOnly = true)
     public boolean fileExists(@NotBlank String fileId) {
         return projectFileRepository.existsById(fileId);
     }
@@ -366,7 +363,6 @@ public class FileUploadService {
     /**
      * Gibt Informationen über eine Datei zurück.
      */
-    @Transactional(readOnly = true)
     public ProjectFile getFileInfo(@NotBlank String fileId) {
         return projectFileRepository.findById(fileId)
                 .orElseThrow(() -> new EntityNotFoundException("Datei mit ID " + fileId + " nicht gefunden"));
@@ -375,7 +371,6 @@ public class FileUploadService {
     /**
      * Findet alle Dateien eines Projekts.
      */
-    @Transactional(readOnly = true)
     public List<ProjectFile> getProjectFiles(@NotBlank String projectId) {
         return projectFileRepository.findByProjectIdOrderByUploadedAtDesc(projectId);
     }
@@ -388,7 +383,7 @@ public class FileUploadService {
         if (projectFile.isEmpty()) {
             return false;
         }
-        
+
         Path filePath = Paths.get(projectFile.get().getStoragePath());
         return Files.exists(filePath);
     }
@@ -396,23 +391,21 @@ public class FileUploadService {
     /**
      * Berechnet die Gesamtgröße aller Dateien eines Projekts.
      */
-    @Transactional(readOnly = true)
     public long getTotalProjectFileSize(@NotBlank String projectId) {
         Long totalSize = projectFileRepository.calculateTotalFileSizeByProjectId(projectId);
         return totalSize != null ? totalSize : 0L;
     }
 
-    @Transactional(readOnly = true)
     public Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType, Pageable pageable) {
         List<ProjectFile> projectFiles = getProjectFiles(projectId);
-        
+
         // Filter anwenden wenn Parameter gesetzt sind
         if (filename != null && !filename.trim().isEmpty()) {
             projectFiles = projectFiles.stream()
                     .filter(f -> f.getOriginalFilename().toLowerCase().contains(filename.toLowerCase()))
                     .collect(Collectors.toList());
         }
-        
+
         if (fileType != null && !fileType.trim().isEmpty()) {
             projectFiles = projectFiles.stream()
                     .filter(f -> f.getFileType().name().equalsIgnoreCase(fileType))
@@ -422,12 +415,11 @@ public class FileUploadService {
         return createPageFromList(projectFiles, pageable);
     }
 
-    @Transactional(readOnly = true)
     public Page<ProjectFile> getProjectFiles(String projectId, Pageable pageable) {
         List<ProjectFile> projectFiles = getProjectFiles(projectId);
         return createPageFromList(projectFiles, pageable);
     }
-    
+
     /**
      * Hilfsmethode um aus einer Liste eine Page zu erstellen.
      */
@@ -435,11 +427,9 @@ public class FileUploadService {
         int total = projectFiles.size();
         int start = Math.min((int) pageable.getOffset(), total);
         int end = Math.min(start + pageable.getPageSize(), total);
-        
-        List<ProjectFile> content = start >= total ? 
-            Collections.emptyList() : 
-            projectFiles.subList(start, end);
-        
+
+        List<ProjectFile> content = start >= total ? Collections.emptyList() : projectFiles.subList(start, end);
+
         return new PageImpl<>(content, pageable, total);
     }
-    }
+}

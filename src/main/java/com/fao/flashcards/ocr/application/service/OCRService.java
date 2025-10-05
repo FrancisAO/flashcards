@@ -12,15 +12,14 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import com.fao.flashcards.cards.model.FileType;
 import com.fao.flashcards.ocr.application.OCRProcessingException;
-import com.fao.flashcards.ocr.application.port.out.ExtractedTextOutputPort;
+import com.fao.flashcards.ocr.application.port.out.ExtractedTextRepository;
 import com.fao.flashcards.ocr.application.port.out.OCRProcessingPort;
-import com.fao.flashcards.ocr.application.port.out.OCRResultOutputPort;
-import com.fao.flashcards.ocr.application.port.out.ProjectFileOutputPort;
+import com.fao.flashcards.ocr.application.port.out.OCRResultRepository;
+import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.model.ExtractedText;
 import com.fao.flashcards.ocr.model.ExtractionSource;
 import com.fao.flashcards.ocr.model.OCROptions;
@@ -44,16 +43,16 @@ import lombok.extern.slf4j.Slf4j;
 public class OCRService {
 
     private final OCRProcessingPort ocrProcessingPort;
-    private final ExtractedTextOutputPort extractedTextRepository;
-    private final OCRResultOutputPort ocrResultRepository;
-    private final ProjectFileOutputPort projectFileRepository;
+    private final ExtractedTextRepository extractedTextRepository;
+    private final OCRResultRepository ocrResultRepository;
+    private final ProjectFileRepository projectFileRepository;
     private final ProjectService projectService;
 
     @Autowired
     public OCRService(OCRProcessingPort ocrProcessingPort,
-            ExtractedTextOutputPort extractedTextRepository,
-            OCRResultOutputPort ocrResultRepository,
-            ProjectFileOutputPort projectFileRepository,
+            ExtractedTextRepository extractedTextRepository,
+            OCRResultRepository ocrResultRepository,
+            ProjectFileRepository projectFileRepository,
             ProjectService projectService) {
         this.ocrProcessingPort = ocrProcessingPort;
         this.extractedTextRepository = extractedTextRepository;
@@ -65,7 +64,6 @@ public class OCRService {
     /**
      * Verarbeitet eine einzelne Datei per OCR.
      */
-    @Transactional
     public ExtractedText processFile(@NotBlank String fileId, @Valid OCROptions options) throws OCRProcessingException {
         log.info("Starte OCR-Verarbeitung für Datei: {}", fileId);
 
@@ -94,7 +92,6 @@ public class OCRService {
                 extractedText.setExtractedContent(processedResult.getApiResponse());
                 extractedText.setExtractionSource(determineExtractionSource(projectFile));
                 extractedText.setExtractedAt(LocalDateTime.now());
-
 
                 // OCRResult aktualisieren
                 ocrResult.markAsSuccess(
@@ -132,7 +129,6 @@ public class OCRService {
     /**
      * Verarbeitet eine einzelne Datei per OCR mit Standard-Optionen.
      */
-    @Transactional
     public ExtractedText processFile(@NotBlank String fileId) throws OCRProcessingException {
         return processFile(fileId, OCROptions.defaultOptions());
     }
@@ -140,7 +136,6 @@ public class OCRService {
     /**
      * Verarbeitet mehrere Dateien als Batch per OCR.
      */
-    @Transactional
     public List<ExtractedText> processBatch(@NotNull List<String> fileIds, @Valid OCROptions options)
             throws OCRProcessingException {
         log.info("Starte Batch-OCR-Verarbeitung für {} Dateien", fileIds.size());
@@ -246,7 +241,6 @@ public class OCRService {
     /**
      * Verarbeitet mehrere Dateien als Batch per OCR mit Standard-Optionen.
      */
-    @Transactional
     public List<ExtractedText> processBatch(@NotNull List<String> fileIds) throws OCRProcessingException {
         return processBatch(fileIds, OCROptions.defaultOptions());
     }
@@ -287,7 +281,6 @@ public class OCRService {
     /**
      * Bearbeitet den extrahierten Text.
      */
-    @Transactional
     public ExtractedText editExtractedText(@NotBlank String extractedTextId, @NotBlank String editedContent) {
         log.info("Bearbeite ExtractedText: {}", extractedTextId);
 
@@ -305,7 +298,6 @@ public class OCRService {
     /**
      * Setzt den bearbeiteten Text zurück auf den ursprünglich extrahierten Text.
      */
-    @Transactional
     public ExtractedText resetEditedText(@NotBlank String extractedTextId) {
         log.info("Setze bearbeiteten Text zurück: {}", extractedTextId);
 
@@ -324,7 +316,6 @@ public class OCRService {
     /**
      * Findet alle Dateien eines Projekts die noch nicht per OCR verarbeitet wurden.
      */
-    @Transactional(readOnly = true)
     public List<ProjectFile> getUnprocessedFiles(@NotBlank String projectId) {
         log.debug("Lade unverarbeitete Dateien für Projekt: {}", projectId);
         return projectFileRepository.findFilesWithoutExtractedTextByProjectId(projectId);
@@ -333,7 +324,6 @@ public class OCRService {
     /**
      * Findet alle ExtractedTexts eines Projekts.
      */
-    @Transactional(readOnly = true)
     public List<ExtractedText> getProjectExtractedTexts(@NotBlank String projectId) {
         log.debug("Lade ExtractedTexts für Projekt: {}", projectId);
         return extractedTextRepository.findByProjectId(projectId);
@@ -342,7 +332,6 @@ public class OCRService {
     /**
      * Findet OCR-Ergebnisse eines Projekts.
      */
-    @Transactional(readOnly = true)
     public List<OCRResult> getProjectOCRResults(@NotBlank String projectId) {
         log.debug("Lade OCR-Ergebnisse für Projekt: {}", projectId);
         return ocrResultRepository.findByProjectId(projectId);
@@ -351,7 +340,6 @@ public class OCRService {
     /**
      * Gibt OCR-Status-Statistiken für ein Projekt zurück.
      */
-    @Transactional(readOnly = true)
     public OCRProjectStatistics getProjectStatistics(@NotBlank String projectId) {
         log.debug("Lade OCR-Statistiken für Projekt: {}", projectId);
 

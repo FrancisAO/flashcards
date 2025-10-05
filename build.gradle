@@ -6,12 +6,17 @@ plugins {
 
 group = 'com.fao'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '21'
 
 repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
     maven { url 'https://repo.spring.io/snapshot' }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 dependencies {
@@ -40,6 +45,8 @@ dependencies {
     
     // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
     
     // Lombok for boilerplate code reduction
     compileOnly 'org.projectlombok:lombok'

@@ -11,8 +11,8 @@ import java.util.List;
  * Repository für AIGenerationRequest-Entitäten.
  */
 @Repository
-public interface AIGenerationRequestRepository extends JpaRepository<AIGenerationRequest, String> {
-    
+public interface JpaAIGenerationRequestSpringDataRepository extends JpaRepository<AIGenerationRequest, String> {
+
     /**
      * Findet alle Generierungsanfragen für ein bestimmtes Deck.
      * 

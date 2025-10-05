@@ -53,7 +53,7 @@ public class ProjectController {
     private final FileUploadService fileUploadService;
     private final DTOMapper dtoMapper;
 
-    @Autowired
+
     public ProjectController(ProjectService projectService,
                            FileUploadService fileUploadService,
                            DTOMapper dtoMapper) {

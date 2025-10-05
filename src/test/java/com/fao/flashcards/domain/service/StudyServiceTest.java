@@ -1,14 +1,16 @@
 package com.fao.flashcards.domain.service;
 
-import com.fao.flashcards.cards.adapter.repository.CardRepository;
-import com.fao.flashcards.cards.adapter.repository.DeckCardRepository;
-import com.fao.flashcards.cards.adapter.repository.DeckRepository;
-import com.fao.flashcards.cards.model.Card;
-import com.fao.flashcards.cards.model.Deck;
-import com.fao.flashcards.cards.model.DeckCard;
-import com.fao.flashcards.learning.application.port.dto.StudyCardDTO;
-import com.fao.flashcards.learning.application.port.dto.StudyDeckDTO;
-import com.fao.flashcards.learning.application.service.StudyServiceImpl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,24 +18,26 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.fao.flashcards.cards.adapter.repository.JpaCardSpringDataRepository;
+import com.fao.flashcards.cards.adapter.repository.JpaDeckCardSpringDataRepository;
+import com.fao.flashcards.cards.adapter.repository.JpaDeckSpringDataRepository;
+import com.fao.flashcards.cards.model.Card;
+import com.fao.flashcards.cards.model.Deck;
+import com.fao.flashcards.cards.model.DeckCard;
+import com.fao.flashcards.learning.application.port.dto.StudyCardDTO;
+import com.fao.flashcards.learning.application.port.dto.StudyDeckDTO;
+import com.fao.flashcards.learning.application.service.StudyServiceImpl;
 
 class StudyServiceTest {
 
     @Mock
-    private DeckRepository deckRepository;
+    private JpaDeckSpringDataRepository deckRepository;
 
     @Mock
-    private CardRepository cardRepository;
+    private JpaCardSpringDataRepository cardRepository;
 
     @Mock
-    private DeckCardRepository deckCardRepository;
+    private JpaDeckCardSpringDataRepository deckCardRepository;
 
     @InjectMocks
     private StudyServiceImpl studyService;
@@ -89,16 +93,16 @@ class StudyServiceTest {
         // Assert
         assertTrue(resultOptional.isPresent(), "Result should be present");
         StudyDeckDTO result = resultOptional.get();
-        
+
         assertEquals(testDeck.getId(), result.getId());
         assertEquals(testDeck.getName(), result.getName());
         assertEquals(testDeck.getDescription(), result.getDescription());
         assertEquals(2, result.getCards().size());
-        
+
         // Verify that the cards are in the result (order may be random)
         boolean foundCard1 = false;
         boolean foundCard2 = false;
-        
+
         for (StudyCardDTO card : result.getCards()) {
             if (card.getId().equals(testCard1.getId())) {
                 foundCard1 = true;
@@ -110,10 +114,10 @@ class StudyServiceTest {
                 assertEquals(testCard2.getBack(), card.getBack());
             }
         }
-        
+
         assertTrue(foundCard1, "Card 1 should be in the result");
         assertTrue(foundCard2, "Card 2 should be in the result");
-        
+
         verify(deckRepository, times(1)).findById("deck-id");
         verify(deckCardRepository, times(1)).findByDeckId("deck-id");
         verify(cardRepository, times(1)).findById("card-id-1");
@@ -132,7 +136,7 @@ class StudyServiceTest {
         assertTrue(result.isEmpty(), "Result should be empty when deck is not found");
         verify(deckRepository, times(1)).findById("deck-id");
     }
-    
+
     @Test
     void getRandomizedDeck_ShouldIgnoreMissingCards() {
         // Arrange
@@ -147,10 +151,10 @@ class StudyServiceTest {
         // Assert
         assertTrue(resultOptional.isPresent(), "Result should be present");
         StudyDeckDTO result = resultOptional.get();
-        
+
         assertEquals(1, result.getCards().size(), "Should only include the cards that were found");
         assertEquals(testCard1.getId(), result.getCards().get(0).getId(), "Only card1 should be included");
-        
+
         verify(deckRepository, times(1)).findById("deck-id");
         verify(deckCardRepository, times(1)).findByDeckId("deck-id");
         verify(cardRepository, times(1)).findById("card-id-1");

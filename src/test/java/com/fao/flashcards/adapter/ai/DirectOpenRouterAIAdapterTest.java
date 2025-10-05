@@ -1,5 +1,12 @@
 package com.fao.flashcards.adapter.ai;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,13 +15,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import com.fao.flashcards.cards.adapter.ai.DirectOpenRouterAIAdapter;
 import com.fao.flashcards.cards.application.port.out.AICardGenerationPort;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests für den DirectOpenRouterAIAdapter.

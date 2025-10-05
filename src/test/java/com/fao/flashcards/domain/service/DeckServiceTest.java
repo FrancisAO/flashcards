@@ -1,20 +1,13 @@
 package com.fao.flashcards.domain.service;
 
-import com.fao.flashcards.cards.adapter.repository.CardRepository;
-import com.fao.flashcards.cards.adapter.repository.DeckCardRepository;
-import com.fao.flashcards.cards.adapter.repository.DeckRepository;
-import com.fao.flashcards.cards.application.port.dto.DeckDTO;
-import com.fao.flashcards.cards.application.port.dto.DeckWithCardsDTO;
-import com.fao.flashcards.cards.application.service.DeckService;
-import com.fao.flashcards.cards.model.Card;
-import com.fao.flashcards.cards.model.Deck;
-import com.fao.flashcards.cards.model.DeckCard;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -23,20 +16,32 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.fao.flashcards.cards.adapter.repository.JpaCardSpringDataRepository;
+import com.fao.flashcards.cards.adapter.repository.JpaDeckCardSpringDataRepository;
+import com.fao.flashcards.cards.adapter.repository.JpaDeckSpringDataRepository;
+import com.fao.flashcards.cards.application.port.dto.DeckDTO;
+import com.fao.flashcards.cards.application.port.dto.DeckWithCardsDTO;
+import com.fao.flashcards.cards.application.service.DeckService;
+import com.fao.flashcards.cards.model.Card;
+import com.fao.flashcards.cards.model.Deck;
+import com.fao.flashcards.cards.model.DeckCard;
 
 class DeckServiceTest {
 
     @Mock
-    private DeckRepository deckRepository;
+    private JpaDeckSpringDataRepository deckRepository;
 
     @Mock
-    private CardRepository cardRepository;
+    private JpaCardSpringDataRepository cardRepository;
 
     @Mock
-    private DeckCardRepository deckCardRepository;
+    private JpaDeckCardSpringDataRepository deckCardRepository;
 
     @InjectMocks
     private DeckService deckService;
@@ -80,7 +85,7 @@ class DeckServiceTest {
         assertEquals(testDeck.getId(), result.get(0).getId());
         assertEquals(testDeck.getName(), result.get(0).getName());
         assertEquals(testDeck.getDescription(), result.get(0).getDescription());
-        
+
         verify(deckRepository, times(1)).findAll();
     }
 
@@ -97,7 +102,7 @@ class DeckServiceTest {
         assertEquals(testDeck.getId(), result.getId());
         assertEquals(testDeck.getName(), result.getName());
         assertEquals(testDeck.getDescription(), result.getDescription());
-        
+
         verify(deckRepository, times(1)).findById("deck-id");
     }
 
@@ -118,7 +123,7 @@ class DeckServiceTest {
         assertEquals(testDeck.getDescription(), result.getDescription());
         assertEquals(1, result.getCards().size());
         assertEquals(testCard.getId(), result.getCards().get(0).getId());
-        
+
         verify(deckRepository, times(1)).findById("deck-id");
         verify(deckCardRepository, times(1)).findByDeckId("deck-id");
         verify(cardRepository, times(1)).findById("card-id");
