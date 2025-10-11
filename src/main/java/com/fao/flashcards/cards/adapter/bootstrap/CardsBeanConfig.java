@@ -14,6 +14,7 @@ import com.fao.flashcards.cards.adapter.repository.JpaDocumentUploadRepository;
 import com.fao.flashcards.cards.application.port.in.CardGenerationInputPort;
 import com.fao.flashcards.cards.application.port.in.CardInputPort;
 import com.fao.flashcards.cards.application.port.in.DeckInputPort;
+import com.fao.flashcards.cards.application.port.in.FileUploadConfig;
 import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.cards.application.port.out.AICardGenerationPort;
 import com.fao.flashcards.cards.application.port.out.DocumentProcessingPort;
@@ -86,6 +87,15 @@ public class CardsBeanConfig {
     }
 
     // ============================================================================
+    // Service Configurations 
+    // ============================================================================
+
+    @Bean
+    public FileUploadConfig fileUploadConfig(FileUploadConfigImpl fileUploadConfigImpl) {
+        return fileUploadConfigImpl;
+    }
+
+    // ============================================================================
     // Application Services (Input Ports)
     // ============================================================================
 
@@ -107,8 +117,8 @@ public class CardsBeanConfig {
     public FileUploadInputPort fileUploadInputPort(
             ProjectFileRepository projectFileRepository,
             ProjectRepository projectRepository,
-            OcrProjectInputPort ocrProjectInputPort) {
-        return new FileUploadService(projectFileRepository, projectRepository, ocrProjectInputPort);
+            OcrProjectInputPort ocrProjectInputPort, FileUploadConfig fileUploadConfig) {
+        return new FileUploadService(projectFileRepository, projectRepository, ocrProjectInputPort, fileUploadConfig);
     }
 
     @Bean

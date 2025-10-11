@@ -16,13 +16,13 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fao.flashcards.cards.application.port.in.FileUploadConfig;
 import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.cards.model.FileType;
 import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
@@ -47,14 +47,8 @@ public class FileUploadService implements FileUploadInputPort {
     private final ProjectRepository projectRepository;
     private final OcrProjectInputPort projectService;
 
-    // Konfigurierbare Werte
-    @Value("${app.upload.base-path:uploads}")
     private String uploadBasePath;
-
-    @Value("${app.upload.max-file-size:52428800}") // 50MB default
     private long maxFileSize;
-
-    @Value("${app.upload.allowed-extensions:pdf,png,jpg,jpeg,gif,bmp,tiff,txt,docx,doc}")
     private String allowedExtensions;
 
     // Unterstützte MIME-Types für verschiedene Dateitypen
@@ -78,10 +72,13 @@ public class FileUploadService implements FileUploadInputPort {
 
     public FileUploadService(ProjectFileRepository projectFileRepository,
             ProjectRepository projectRepository,
-            OcrProjectInputPort projectService) {
+            OcrProjectInputPort projectService, FileUploadConfig fileUploadConfig) {
         this.projectFileRepository = projectFileRepository;
         this.projectRepository = projectRepository;
         this.projectService = projectService;
+        this.uploadBasePath = fileUploadConfig.getUploadBasePath();
+        this.maxFileSize = fileUploadConfig.getMaxFileSizeBytes();
+        this.allowedExtensions = fileUploadConfig.getAllowedExtensions();
     }
 
     /**
