@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.fao.flashcards.cards.application.port.dto.CardDTO;
 import com.fao.flashcards.cards.application.port.dto.DeckDTO;
 import com.fao.flashcards.cards.application.port.dto.DeckWithCardsDTO;
+import com.fao.flashcards.cards.application.port.in.DeckInputPort;
 import com.fao.flashcards.cards.application.port.out.repository.CardRepository;
 import com.fao.flashcards.cards.application.port.out.repository.DeckCardRepository;
 import com.fao.flashcards.cards.application.port.out.repository.DeckRepository;
@@ -19,7 +20,7 @@ import com.fao.flashcards.cards.model.Deck;
 import com.fao.flashcards.cards.model.DeckCard;
 
 @Service
-public class DeckService {
+public class DeckService implements DeckInputPort {
 
     private final DeckRepository deckRepository;
     private final CardRepository cardRepository;
@@ -34,12 +35,14 @@ public class DeckService {
         this.deckCardRepository = deckCardRepository;
     }
 
+    @Override
     public List<DeckDTO> getAllDecks() {
         return deckRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public DeckDTO getDeckById(String id) {
         assert id != null : "Deck ID darf nicht null sein";
         assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
@@ -48,6 +51,7 @@ public class DeckService {
         return convertToDTO(deck);
     }
 
+    @Override
     public DeckWithCardsDTO getDeckWithCards(String id) {
         assert id != null : "Deck ID darf nicht null sein";
         assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
@@ -64,6 +68,7 @@ public class DeckService {
         return convertToDTOWithCards(deck, cards);
     }
 
+    @Override
     public DeckDTO createDeck(DeckDTO deckDTO) {
         Deck deck = new Deck();
         deck.setName(deckDTO.getName());
@@ -77,6 +82,7 @@ public class DeckService {
         return convertToDTO(savedDeck);
     }
 
+    @Override
     public DeckDTO updateDeck(String id, DeckDTO deckDTO) {
         assert id != null : "Deck ID darf nicht null sein";
         assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
@@ -94,6 +100,7 @@ public class DeckService {
         return convertToDTO(updatedDeck);
     }
 
+    @Override
     public void deleteDeck(String id) {
         assert id != null : "Deck ID darf nicht null sein";
         assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";
@@ -111,6 +118,7 @@ public class DeckService {
         deckRepository.deleteById(id);
     }
 
+    @Override
     public void addCardToDeck(String deckId, String cardId) {
         assert deckId != null : "Deck ID darf nicht null sein";
         assert !deckId.trim().isEmpty() : "Deck ID darf nicht leer sein";
@@ -135,6 +143,7 @@ public class DeckService {
         deckCardRepository.save(deckCard);
     }
 
+    @Override
     public void removeCardFromDeck(String deckId, String cardId) {
         assert deckId != null : "Deck ID darf nicht null sein";
         assert !deckId.trim().isEmpty() : "Deck ID darf nicht leer sein";
@@ -148,6 +157,7 @@ public class DeckService {
         deckCardRepository.delete(deckCard);
     }
 
+    @Override
     public List<DeckDTO> getDecksByTag(String tag) {
         assert tag != null : "Tag darf nicht null sein";
         assert !tag.trim().isEmpty() : "Tag darf nicht leer sein";
@@ -156,6 +166,7 @@ public class DeckService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public boolean doesDeckExist(String id) {
         assert id != null : "Deck ID darf nicht null sein";
         assert !id.trim().isEmpty() : "Deck ID darf nicht leer sein";

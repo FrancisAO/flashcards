@@ -1,9 +1,15 @@
 package com.fao.flashcards.api.controller;
 
-import com.fao.flashcards.learning.adapter.rest.StudyController;
-import com.fao.flashcards.learning.application.port.dto.StudyCardDTO;
-import com.fao.flashcards.learning.application.port.dto.StudyDeckDTO;
-import com.fao.flashcards.learning.application.service.StudyService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,17 +19,15 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import com.fao.flashcards.learning.adapter.rest.StudyController;
+import com.fao.flashcards.learning.application.port.dto.StudyCardDTO;
+import com.fao.flashcards.learning.application.port.dto.StudyDeckDTO;
+import com.fao.flashcards.learning.application.port.in.LearningInputPort;
 
 class StudyControllerTest {
 
     @Mock
-    private StudyService studyService;
+    private LearningInputPort studyService;
 
     @InjectMocks
     private StudyController studyController;
@@ -41,11 +45,11 @@ class StudyControllerTest {
         mockStudyDeck.setId(deckId);
         mockStudyDeck.setName("Test Deck");
         mockStudyDeck.setDescription("Test Description");
-        
+
         StudyCardDTO card1 = new StudyCardDTO("card-id-1", "Front 1", "Back 1", new HashSet<>());
         StudyCardDTO card2 = new StudyCardDTO("card-id-2", "Front 2", "Back 2", new HashSet<>());
         mockStudyDeck.setCards(Arrays.asList(card1, card2));
-        
+
         when(studyService.doesDeckExist(deckId)).thenReturn(true);
         when(studyService.getRandomizedDeck(deckId)).thenReturn(Optional.of(mockStudyDeck));
 

@@ -1,4 +1,4 @@
-package com.fao.flashcards.adapter.repository;
+package com.fao.flashcards.bootstrap.adapter.repository;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;

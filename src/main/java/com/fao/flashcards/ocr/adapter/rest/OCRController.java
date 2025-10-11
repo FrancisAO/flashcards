@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fao.flashcards.cards.application.service.FileUploadService;
+import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.OCRProcessingException;
 import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
 import com.fao.flashcards.ocr.application.port.dto.ExtractedTextDTO;
@@ -28,8 +28,9 @@ import com.fao.flashcards.ocr.application.port.dto.OCRProcessResponse;
 import com.fao.flashcards.ocr.application.port.dto.OCRResultDTO;
 import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
 import com.fao.flashcards.ocr.application.port.dto.UpdateTextRequest;
+import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
+import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.application.service.OCRService;
-import com.fao.flashcards.ocr.application.service.ProjectService;
 import com.fao.flashcards.ocr.model.ExtractedText;
 import com.fao.flashcards.ocr.model.OCROptions;
 import com.fao.flashcards.ocr.model.OCRResult;
@@ -52,16 +53,16 @@ import lombok.extern.slf4j.Slf4j;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class OCRController {
 
-    private final OCRService ocrService;
-    private final ProjectService projectService;
+    private final OCRInputPort ocrService;
+    private final OcrProjectInputPort projectService;
     private final DTOMapper dtoMapper;
-    private final FileUploadService fileUploadService;
+    private final FileUploadInputPort fileUploadService;
 
     @Autowired
-    public OCRController(OCRService ocrService,
-            ProjectService projectService,
+    public OCRController(OCRInputPort ocrService,
+            OcrProjectInputPort projectService,
             DTOMapper dtoMapper,
-            FileUploadService fileUploadService) {
+            FileUploadInputPort fileUploadService) {
         this.ocrService = ocrService;
         this.projectService = projectService;
         this.dtoMapper = dtoMapper;

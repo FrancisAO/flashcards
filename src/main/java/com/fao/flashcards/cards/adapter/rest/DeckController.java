@@ -3,7 +3,7 @@ package com.fao.flashcards.cards.adapter.rest;
 import com.fao.flashcards.cards.application.port.dto.DeckCardDTO;
 import com.fao.flashcards.cards.application.port.dto.DeckDTO;
 import com.fao.flashcards.cards.application.port.dto.DeckWithCardsDTO;
-import com.fao.flashcards.cards.application.service.DeckService;
+import com.fao.flashcards.cards.application.port.in.DeckInputPort;
 
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,10 +21,10 @@ import java.util.List;
 public class DeckController {
 
     private static final Logger logger = LoggerFactory.getLogger(DeckController.class);
-    private final DeckService deckService;
+    private final DeckInputPort deckService;
 
     @Autowired
-    public DeckController(DeckService deckService) {
+    public DeckController(DeckInputPort deckService) {
         this.deckService = deckService;
     }
 

@@ -25,16 +25,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.cards.model.FileType;
+import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
-import com.fao.flashcards.ocr.application.service.ProjectService;
 import com.fao.flashcards.ocr.model.Project;
 import com.fao.flashcards.ocr.model.ProjectFile;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -45,11 +44,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Validated
 @Slf4j
-public class FileUploadService {
+public class FileUploadService implements FileUploadInputPort {
 
     private final ProjectFileRepository projectFileRepository;
     private final ProjectRepository projectRepository;
-    private final ProjectService projectService;
+    private final OcrProjectInputPort projectService;
 
     // Konfigurierbare Werte
     @Value("${app.upload.base-path:uploads}")
@@ -83,7 +82,7 @@ public class FileUploadService {
     @Autowired
     public FileUploadService(ProjectFileRepository projectFileRepository,
             ProjectRepository projectRepository,
-            ProjectService projectService) {
+            OcrProjectInputPort projectService) {
         this.projectFileRepository = projectFileRepository;
         this.projectRepository = projectRepository;
         this.projectService = projectService;
@@ -92,7 +91,8 @@ public class FileUploadService {
     /**
      * Verarbeitet einen Datei-Upload für ein bestimmtes Projekt.
      */
-    public ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFile file) throws IOException {
+    @Override
+    public ProjectFile uploadFile(String projectId, MultipartFile file) throws IOException {
         log.info("Starte Datei-Upload für Projekt {}: {}", projectId, file.getOriginalFilename());
 
         // Projekt validieren
@@ -322,7 +322,8 @@ public class FileUploadService {
     /**
      * Löscht eine ProjectFile und die zugehörige physische Datei.
      */
-    public void deleteFile(@NotBlank String fileId) throws IOException {
+    @Override
+    public void deleteFile(String fileId) throws IOException {
         log.info("Lösche Datei mit ID: {}", fileId);
 
         ProjectFile projectFile = projectFileRepository.findById(fileId)
@@ -356,14 +357,16 @@ public class FileUploadService {
     /**
      * Prüft ob eine Datei existiert.
      */
-    public boolean fileExists(@NotBlank String fileId) {
+    @Override
+    public boolean fileExists(String fileId) {
         return projectFileRepository.existsById(fileId);
     }
 
     /**
      * Gibt Informationen über eine Datei zurück.
      */
-    public ProjectFile getFileInfo(@NotBlank String fileId) {
+    @Override
+    public ProjectFile getFileInfo(String fileId) {
         return projectFileRepository.findById(fileId)
                 .orElseThrow(() -> new EntityNotFoundException("Datei mit ID " + fileId + " nicht gefunden"));
     }
@@ -371,14 +374,16 @@ public class FileUploadService {
     /**
      * Findet alle Dateien eines Projekts.
      */
-    public List<ProjectFile> getProjectFiles(@NotBlank String projectId) {
+    @Override
+    public List<ProjectFile> getProjectFiles(String projectId) {
         return projectFileRepository.findByProjectIdOrderByUploadedAtDesc(projectId);
     }
 
     /**
      * Prüft ob eine physische Datei im Dateisystem existiert.
      */
-    public boolean physicalFileExists(@NotBlank String fileId) {
+    @Override
+    public boolean physicalFileExists(String fileId) {
         Optional<ProjectFile> projectFile = projectFileRepository.findById(fileId);
         if (projectFile.isEmpty()) {
             return false;
@@ -391,11 +396,13 @@ public class FileUploadService {
     /**
      * Berechnet die Gesamtgröße aller Dateien eines Projekts.
      */
-    public long getTotalProjectFileSize(@NotBlank String projectId) {
+    @Override
+    public long getTotalProjectFileSize(String projectId) {
         Long totalSize = projectFileRepository.calculateTotalFileSizeByProjectId(projectId);
         return totalSize != null ? totalSize : 0L;
     }
 
+    @Override
     public Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType, Pageable pageable) {
         List<ProjectFile> projectFiles = getProjectFiles(projectId);
 
@@ -415,6 +422,7 @@ public class FileUploadService {
         return createPageFromList(projectFiles, pageable);
     }
 
+    @Override
     public Page<ProjectFile> getProjectFiles(String projectId, Pageable pageable) {
         List<ProjectFile> projectFiles = getProjectFiles(projectId);
         return createPageFromList(projectFiles, pageable);

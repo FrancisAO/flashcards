@@ -26,7 +26,7 @@ import com.fao.flashcards.cards.model.Deck;
 import com.fao.flashcards.cards.model.DeckCard;
 import com.fao.flashcards.learning.application.port.dto.StudyCardDTO;
 import com.fao.flashcards.learning.application.port.dto.StudyDeckDTO;
-import com.fao.flashcards.learning.application.service.StudyServiceImpl;
+import com.fao.flashcards.learning.application.service.StudyService;
 
 class StudyServiceTest {
 
@@ -40,7 +40,7 @@ class StudyServiceTest {
     private JpaDeckCardSpringDataRepository deckCardRepository;
 
     @InjectMocks
-    private StudyServiceImpl studyService;
+    private StudyService studyService;
 
     private Deck testDeck;
     private Card testCard1;

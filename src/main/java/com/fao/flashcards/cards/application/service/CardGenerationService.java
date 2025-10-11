@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fao.flashcards.cards.application.port.in.CardGenerationInputPort;
+import com.fao.flashcards.cards.application.port.in.DeckInputPort;
 import com.fao.flashcards.cards.application.port.out.AICardGenerationPort;
 import com.fao.flashcards.cards.application.port.out.DocumentProcessingPort;
 import com.fao.flashcards.cards.application.port.out.repository.AIGeneratedCardRepository;
@@ -28,13 +30,13 @@ import jakarta.persistence.EntityNotFoundException;
  * Koordiniert die Dokumentenverarbeitung und KI-Anfragen.
  */
 @Service
-public class CardGenerationService {
+public class CardGenerationService implements CardGenerationInputPort {
 
     private final AIGenerationRequestRepository generationRequestRepository;
     private final DocumentUploadRepository documentUploadRepository;
     private final AIGeneratedCardRepository generatedCardRepository;
     private final CardRepository cardRepository;
-    private final DeckService deckService;
+    private final DeckInputPort deckService;
     private final AICardGenerationPort aiCardGenerationPort;
     private final DocumentProcessingPort documentProcessingPort;
     private static final Logger LOGGER = LoggerFactory.getLogger(CardGenerationService.class);
@@ -45,7 +47,7 @@ public class CardGenerationService {
             DocumentUploadRepository documentUploadRepository,
             AIGeneratedCardRepository generatedCardRepository,
             CardRepository cardRepository,
-            DeckService deckService,
+            DeckInputPort deckService,
             AICardGenerationPort aiCardGenerationPort,
             DocumentProcessingPort documentProcessingPort) {
         this.generationRequestRepository = generationRequestRepository;
@@ -65,6 +67,7 @@ public class CardGenerationService {
      * @param numberOfCards Die gewünschte Anzahl an Karteikarten (optional)
      * @return Die erstellte Generierungsanfrage
      */
+    @Override
     public AIGenerationRequest createGenerationRequest(String deckId, String prompt, Integer numberOfCards) {
         AIGenerationRequest request = new AIGenerationRequest();
         request.setDeckId(deckId);
@@ -92,6 +95,7 @@ public class CardGenerationService {
      *                                                            Textextraktion ein
      *                                                            Fehler auftritt
      */
+    @Override
     public DocumentUpload uploadDocument(String requestId, MultipartFile file)
             throws EntityNotFoundException, IOException, DocumentProcessingPort.DocumentProcessingException {
 
@@ -125,6 +129,7 @@ public class CardGenerationService {
      * @throws EntityNotFoundException wenn die Generierungsanfrage nicht gefunden
      *                                 wird
      */
+    @Override
     public AIGenerationRequest processGenerationRequest(String requestId) throws EntityNotFoundException {
         AIGenerationRequest request = generationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException("Generierungsanfrage nicht gefunden: " + requestId));
@@ -185,6 +190,7 @@ public class CardGenerationService {
      * @throws EntityNotFoundException wenn die Generierungsanfrage nicht gefunden
      *                                 wird
      */
+    @Override
     public AIGenerationRequest getGenerationRequest(String requestId) throws EntityNotFoundException {
         return generationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException("Generierungsanfrage nicht gefunden: " + requestId));
@@ -198,6 +204,7 @@ public class CardGenerationService {
      * @throws EntityNotFoundException wenn die Generierungsanfrage nicht gefunden
      *                                 wird
      */
+    @Override
     public List<AIGeneratedCard> getGeneratedCards(String requestId) throws EntityNotFoundException {
         if (!generationRequestRepository.existsById(requestId)) {
             throw new EntityNotFoundException("Generierungsanfrage nicht gefunden: " + requestId);
@@ -216,6 +223,7 @@ public class CardGenerationService {
      * @return Die aktualisierte Karteikarte
      * @throws EntityNotFoundException wenn die Karteikarte nicht gefunden wird
      */
+    @Override
     public AIGeneratedCard updateGeneratedCard(String requestId, String cardId, String front, String back)
             throws EntityNotFoundException {
 
@@ -243,6 +251,7 @@ public class CardGenerationService {
      * @throws EntityNotFoundException wenn die Generierungsanfrage oder das Deck
      *                                 nicht gefunden wird
      */
+    @Override
     public List<Card> saveGeneratedCards(String deckId, String requestId) throws EntityNotFoundException {
         AIGenerationRequest request = generationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException("Generierungsanfrage nicht gefunden: " + requestId));

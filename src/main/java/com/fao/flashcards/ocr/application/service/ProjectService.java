@@ -8,15 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 
+import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.application.port.out.ExtractedTextRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
 import com.fao.flashcards.ocr.model.Project;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Validated
 @Slf4j
-public class ProjectService {
+public class ProjectService implements OcrProjectInputPort {
 
     private final ProjectRepository projectOutputPort;
     private final ProjectFileRepository projectFileOutputPort;
@@ -43,7 +41,8 @@ public class ProjectService {
     /**
      * Erstellt ein neues Projekt.
      */
-    public Project createProject(@Valid @NotNull Project project) {
+    @Override
+    public Project createProject(Project project) {
         log.info("Erstelle neues Projekt: {}", project.getName());
 
         if (projectOutputPort.existsByName(project.getName())) {
@@ -59,7 +58,8 @@ public class ProjectService {
     /**
      * Findet ein Projekt nach ID.
      */
-    public Project getProjectById(@NotBlank String projectId) {
+    @Override
+    public Project getProjectById(String projectId) {
         log.debug("Suche Projekt mit ID: {}", projectId);
         return projectOutputPort.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Projekt mit ID " + projectId + " nicht gefunden"));
@@ -68,6 +68,7 @@ public class ProjectService {
     /**
      * Findet alle Projekte mit Paginierung.
      */
+    @Override
     public Page<Project> getAllProjects(Pageable pageable) {
         log.debug("Lade alle Projekte mit Paginierung: {}", pageable);
         return projectOutputPort.findAllByOrderByCreatedAtDesc(pageable);
@@ -76,7 +77,8 @@ public class ProjectService {
     /**
      * Sucht Projekte nach Namen oder Beschreibung.
      */
-    public Page<Project> searchProjects(@NotBlank String searchTerm, Pageable pageable) {
+    @Override
+    public Page<Project> searchProjects(String searchTerm, Pageable pageable) {
         log.debug("Suche Projekte mit Begriff: {}", searchTerm);
         return projectOutputPort.searchByNameOrDescription(searchTerm, pageable);
     }
@@ -84,7 +86,8 @@ public class ProjectService {
     /**
      * Findet Projekte nach Tags.
      */
-    public List<Project> getProjectsByTags(@NotNull Set<String> tags) {
+    @Override
+    public List<Project> getProjectsByTags(Set<String> tags) {
         log.debug("Suche Projekte mit Tags: {}", tags);
         if (tags.isEmpty()) {
             return List.of();
@@ -95,7 +98,8 @@ public class ProjectService {
     /**
      * Findet Projekte die alle angegebenen Tags enthalten.
      */
-    public List<Project> getProjectsByAllTags(@NotNull Set<String> tags) {
+    @Override
+    public List<Project> getProjectsByAllTags(Set<String> tags) {
         log.debug("Suche Projekte mit allen Tags: {}", tags);
         if (tags.isEmpty()) {
             return List.of();
@@ -106,7 +110,8 @@ public class ProjectService {
     /**
      * Aktualisiert ein bestehendes Projekt.
      */
-    public Project updateProject(@NotBlank String projectId, @Valid @NotNull Project projectUpdate) {
+    @Override
+    public Project updateProject(String projectId, Project projectUpdate) {
         log.info("Aktualisiere Projekt mit ID: {}", projectId);
 
         Project existingProject = getProjectById(projectId);
@@ -129,7 +134,8 @@ public class ProjectService {
     /**
      * Fügt einen Tag zu einem Projekt hinzu.
      */
-    public Project addTag(@NotBlank String projectId, @NotBlank String tag) {
+    @Override
+    public Project addTag(String projectId, String tag) {
         log.info("Füge Tag '{}' zu Projekt {} hinzu", tag, projectId);
 
         Project project = getProjectById(projectId);
@@ -143,7 +149,8 @@ public class ProjectService {
     /**
      * Entfernt einen Tag von einem Projekt.
      */
-    public Project removeTag(@NotBlank String projectId, @NotBlank String tag) {
+    @Override
+    public Project removeTag(String projectId, String tag) {
         log.info("Entferne Tag '{}' von Projekt {}", tag, projectId);
 
         Project project = getProjectById(projectId);
@@ -157,7 +164,8 @@ public class ProjectService {
     /**
      * Setzt alle Tags eines Projekts.
      */
-    public Project setTags(@NotBlank String projectId, @NotNull Set<String> tags) {
+    @Override
+    public Project setTags(String projectId, Set<String> tags) {
         log.info("Setze Tags für Projekt {}: {}", projectId, tags);
 
         Project project = getProjectById(projectId);
@@ -174,7 +182,8 @@ public class ProjectService {
     /**
      * Aktualisiert die Datei-Anzahl eines Projekts.
      */
-    public void updateFileCount(@NotBlank String projectId) {
+    @Override
+    public void updateFileCount(String projectId) {
         log.debug("Aktualisiere Datei-Anzahl für Projekt: {}", projectId);
 
         Project project = getProjectById(projectId);
@@ -189,7 +198,8 @@ public class ProjectService {
     /**
      * Aktualisiert die ExtractedText-Anzahl eines Projekts.
      */
-    public void updateExtractedTextCount(@NotBlank String projectId) {
+    @Override
+    public void updateExtractedTextCount(String projectId) {
         log.debug("Aktualisiere ExtractedText-Anzahl für Projekt: {}", projectId);
 
         Project project = getProjectById(projectId);
@@ -204,7 +214,8 @@ public class ProjectService {
     /**
      * Aktualisiert beide Statistiken eines Projekts.
      */
-    public void updateProjectStatistics(@NotBlank String projectId) {
+    @Override
+    public void updateProjectStatistics(String projectId) {
         log.debug("Aktualisiere Statistiken für Projekt: {}", projectId);
 
         Project project = getProjectById(projectId);
@@ -222,7 +233,8 @@ public class ProjectService {
     /**
      * Löscht ein Projekt.
      */
-    public void deleteProject(@NotBlank String projectId) {
+    @Override
+    public void deleteProject(String projectId) {
         log.info("Lösche Projekt mit ID: {}", projectId);
 
         Project project = getProjectById(projectId);
@@ -241,6 +253,7 @@ public class ProjectService {
     /**
      * Findet alle verwendeten Tags.
      */
+    @Override
     public List<String> getAllUsedTags() {
         log.debug("Lade alle verwendeten Tags");
         return projectOutputPort.findAllUsedTags();
@@ -249,6 +262,7 @@ public class ProjectService {
     /**
      * Findet Projekte ohne extrahierte Texte.
      */
+    @Override
     public List<Project> getProjectsWithoutExtractedTexts() {
         log.debug("Lade Projekte ohne extrahierte Texte");
         return projectOutputPort.findProjectsWithoutExtractedTexts();
@@ -257,6 +271,7 @@ public class ProjectService {
     /**
      * Findet Projekte mit extrahierten Texten.
      */
+    @Override
     public List<Project> getProjectsWithExtractedTexts() {
         log.debug("Lade Projekte mit extrahierten Texten");
         return projectOutputPort.findProjectsWithExtractedTexts();
@@ -265,7 +280,8 @@ public class ProjectService {
     /**
      * Findet Projekte die nach einem bestimmten Datum erstellt wurden.
      */
-    public List<Project> getProjectsCreatedAfter(@NotNull LocalDateTime dateTime) {
+    @Override
+    public List<Project> getProjectsCreatedAfter(LocalDateTime dateTime) {
         log.debug("Lade Projekte erstellt nach: {}", dateTime);
         return projectOutputPort.findByCreatedAtAfter(dateTime);
     }
@@ -273,7 +289,8 @@ public class ProjectService {
     /**
      * Zählt Projekte mit einem bestimmten Tag.
      */
-    public long countProjectsByTag(@NotBlank String tag) {
+    @Override
+    public long countProjectsByTag(String tag) {
         log.debug("Zähle Projekte mit Tag: {}", tag);
         return projectOutputPort.countByTag(tag);
     }
@@ -281,7 +298,8 @@ public class ProjectService {
     /**
      * Prüft ob ein Projektname bereits existiert.
      */
-    public boolean existsByName(@NotBlank String name) {
+    @Override
+    public boolean existsByName(String name) {
         return projectOutputPort.existsByName(name);
     }
 }

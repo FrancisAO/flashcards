@@ -3,7 +3,6 @@ package com.fao.flashcards.ocr.adapter.rest;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fao.flashcards.cards.application.service.FileUploadService;
+import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.dto.CreateProjectRequest;
 import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
 import com.fao.flashcards.ocr.application.port.dto.ProjectDTO;
@@ -30,7 +29,7 @@ import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
 import com.fao.flashcards.ocr.application.port.dto.ProjectStatisticsDTO;
 import com.fao.flashcards.ocr.application.port.dto.ProjectStatisticsDTO.RecentActivityDTO;
 import com.fao.flashcards.ocr.application.port.dto.UpdateProjectRequest;
-import com.fao.flashcards.ocr.application.service.ProjectService;
+import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.model.Project;
 import com.fao.flashcards.ocr.model.ProjectFile;
 
@@ -49,14 +48,13 @@ import lombok.extern.slf4j.Slf4j;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ProjectController {
 
-    private final ProjectService projectService;
-    private final FileUploadService fileUploadService;
+    private final OcrProjectInputPort projectService;
+    private final FileUploadInputPort fileUploadService;
     private final DTOMapper dtoMapper;
 
-
-    public ProjectController(ProjectService projectService,
-                           FileUploadService fileUploadService,
-                           DTOMapper dtoMapper) {
+    public ProjectController(OcrProjectInputPort projectService,
+            FileUploadInputPort fileUploadService,
+            DTOMapper dtoMapper) {
         this.projectService = projectService;
         this.fileUploadService = fileUploadService;
         this.dtoMapper = dtoMapper;
@@ -72,33 +70,32 @@ public class ProjectController {
             @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "desc") String sortDir,
             @RequestParam(value = "search", required = false) String search) {
-        
-        log.debug("GET /api/v1/projects - page: {}, size: {}, sortBy: {}, sortDir: {}, search: {}", 
-                 page, size, sortBy, sortDir, search);
-        
+
+        log.debug("GET /api/v1/projects - page: {}, size: {}, sortBy: {}, sortDir: {}, search: {}",
+                page, size, sortBy, sortDir, search);
+
         try {
             // Sorting erstellen
-            Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? 
-                Sort.Direction.DESC : Sort.Direction.ASC;
+            Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
             Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-            
+
             Page<Project> projectsPage;
             if (search != null && !search.trim().isEmpty()) {
                 projectsPage = projectService.searchProjects(search.trim(), pageable);
             } else {
                 projectsPage = projectService.getAllProjects(pageable);
             }
-            
+
             // Convert to DTOs
             Page<ProjectDTO> projectDTOs = projectsPage.map(dtoMapper::toDTO);
-            
-            log.debug("Returning {} projects (page {} of {})", 
-                     projectDTOs.getNumberOfElements(), 
-                     projectDTOs.getNumber() + 1, 
-                     projectDTOs.getTotalPages());
-            
+
+            log.debug("Returning {} projects (page {} of {})",
+                    projectDTOs.getNumberOfElements(),
+                    projectDTOs.getNumber() + 1,
+                    projectDTOs.getTotalPages());
+
             return ResponseEntity.ok(projectDTOs);
-            
+
         } catch (Exception e) {
             log.error("Fehler beim Laden der Projekte", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -111,23 +108,23 @@ public class ProjectController {
     @GetMapping("/statistics")
     public ResponseEntity<ProjectStatisticsDTO> getProjectStatistics() {
         log.debug("GET /api/v1/projects/statistics");
-        
+
         try {
             // Statistiken vom Service laden
             // Nutze Paginierung um Gesamtanzahl zu ermitteln
             Pageable pageable = PageRequest.of(0, 1);
             Page<Project> projectPage = projectService.getAllProjects(pageable);
             long totalProjects = projectPage.getTotalElements();
-            
+
             List<String> allTags = projectService.getAllUsedTags();
-            
+
             // Für Demo-Zwecke verwenden wir vereinfachte Statistiken
             // In einer vollständigen Implementierung würden diese vom Service kommen
             ProjectStatisticsDTO statistics = new ProjectStatisticsDTO();
             statistics.setTotalProjects(totalProjects);
 
             statistics.setMostUsedTags(allTags.stream().limit(5).toList());
-            
+
             // Kürzliche Aktivitäten (Demo-Daten)
             RecentActivityDTO recentActivity = new RecentActivityDTO();
             recentActivity.setProjectsCreated(Math.min(totalProjects, 5L));
@@ -135,10 +132,10 @@ public class ProjectController {
             recentActivity.setTextsExtracted(Math.min(totalProjects * 5L, 25L));
             recentActivity.setPeriod("last_7_days");
             statistics.setRecentActivity(recentActivity);
-            
+
             log.debug("Statistiken erfolgreich geladen: {} Projekte", totalProjects);
             return ResponseEntity.ok(statistics);
-            
+
         } catch (Exception e) {
             log.error("Fehler beim Laden der Projekt-Statistiken", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -151,14 +148,14 @@ public class ProjectController {
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectDTO> getProject(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/projects/{}", projectId);
-        
+
         try {
             Project project = projectService.getProjectById(projectId);
             ProjectDTO projectDTO = dtoMapper.toDTO(project);
-            
+
             log.debug("Projekt {} erfolgreich geladen", projectId);
             return ResponseEntity.ok(projectDTO);
-            
+
         } catch (EntityNotFoundException e) {
             log.warn("Projekt nicht gefunden: {} {}", projectId, e);
             return ResponseEntity.notFound().build();
@@ -175,10 +172,9 @@ public class ProjectController {
         try {
             Project project = projectService.getProjectById(projectId);
             ProjectStatisticsDTO statisticsDTO = new ProjectStatisticsDTO();
-            statisticsDTO.setTotalFiles((long)project.getFileCount());
-            statisticsDTO.setTotalExtractedTexts((long)project.getExtractedTextCount());
+            statisticsDTO.setTotalFiles((long) project.getFileCount());
+            statisticsDTO.setTotalExtractedTexts((long) project.getExtractedTextCount());
             statisticsDTO.setTotalFileSize(0L);
-    
 
             log.debug("Projekt {} erfolgreich geladen", projectId);
             return ResponseEntity.ok(statisticsDTO);
@@ -198,23 +194,23 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody CreateProjectRequest request) {
         log.info("POST /api/v1/projects - Erstelle Projekt: {}", request.getName());
-        
+
         try {
             // Tags normalisieren
             request.normalizeTags();
-            
+
             // Request zu Entity konvertieren
             Project project = dtoMapper.toEntity(request);
-            
+
             // Projekt erstellen
             Project savedProject = projectService.createProject(project);
             ProjectDTO projectDTO = dtoMapper.toDTO(savedProject);
-            
-            log.info("Projekt erfolgreich erstellt: {} (ID: {})", 
+
+            log.info("Projekt erfolgreich erstellt: {} (ID: {})",
                     savedProject.getName(), savedProject.getId());
-            
+
             return ResponseEntity.status(HttpStatus.CREATED).body(projectDTO);
-            
+
         } catch (IllegalArgumentException e) {
             log.warn("Ungültige Projekt-Daten: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -229,28 +225,28 @@ public class ProjectController {
      */
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectDTO> updateProject(@PathVariable("projectId") String projectId,
-                                                   @Valid @RequestBody UpdateProjectRequest request) {
+            @Valid @RequestBody UpdateProjectRequest request) {
         log.info("PUT /api/v1/projects/{} - Aktualisiere Projekt: {}", projectId, request.getName());
-        
+
         try {
             // Tags normalisieren
             request.normalizeTags();
-            
+
             // Request zu Entity konvertieren und aktualisieren
             Project updatedProject = new Project(request.getName(), request.getDescription());
             if (request.getTags() != null) {
                 updatedProject.getTags().addAll(request.getTags());
             }
-            
+
             // Projekt aktualisieren
             Project savedProject = projectService.updateProject(projectId, updatedProject);
             ProjectDTO projectDTO = dtoMapper.toDTO(savedProject);
-            
-            log.info("Projekt erfolgreich aktualisiert: {} (ID: {})", 
+
+            log.info("Projekt erfolgreich aktualisiert: {} (ID: {})",
                     savedProject.getName(), savedProject.getId());
-            
+
             return ResponseEntity.ok(projectDTO);
-            
+
         } catch (EntityNotFoundException e) {
             log.warn("Projekt nicht gefunden für Update: {}", projectId);
             return ResponseEntity.notFound().build();
@@ -269,13 +265,13 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(@PathVariable("projectId") String projectId) {
         log.info("DELETE /api/v1/projects/{}", projectId);
-        
+
         try {
             projectService.deleteProject(projectId);
-            
+
             log.info("Projekt erfolgreich gelöscht: {}", projectId);
             return ResponseEntity.noContent().build();
-            
+
         } catch (EntityNotFoundException e) {
             log.warn("Projekt nicht gefunden für Löschung: {}", projectId);
             return ResponseEntity.notFound().build();
@@ -294,18 +290,18 @@ public class ProjectController {
     @GetMapping("/{projectId}/files")
     public ResponseEntity<List<ProjectFileDTO>> getProjectFiles(@PathVariable("projectId") String projectId) {
         log.debug("GET /api/v1/projects/{}/files", projectId);
-        
+
         try {
             // Projekt existiert prüfen
             projectService.getProjectById(projectId);
-            
+
             // Dateien laden
             List<ProjectFile> projectFiles = fileUploadService.getProjectFiles(projectId);
             List<ProjectFileDTO> fileDTOs = dtoMapper.toProjectFileDTOList(projectFiles);
-            
+
             log.debug("Returning {} files for project {}", fileDTOs.size(), projectId);
             return ResponseEntity.ok(fileDTOs);
-            
+
         } catch (EntityNotFoundException e) {
             log.warn("Projekt nicht gefunden für Datei-Liste: {}", projectId);
             return ResponseEntity.notFound().build();
@@ -321,13 +317,13 @@ public class ProjectController {
     @GetMapping("/tags")
     public ResponseEntity<List<String>> getAllUsedTags() {
         log.debug("GET /api/v1/projects/tags");
-        
+
         try {
             List<String> tags = projectService.getAllUsedTags();
-            
+
             log.debug("Returning {} unique tags", tags.size());
             return ResponseEntity.ok(tags);
-            
+
         } catch (Exception e) {
             log.error("Fehler beim Laden der Tags", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -339,20 +335,20 @@ public class ProjectController {
      */
     @PostMapping("/{projectId}/tags")
     public ResponseEntity<ProjectDTO> addTag(@PathVariable("projectId") String projectId,
-                                           @RequestParam("tag") String tag) {
+            @RequestParam("tag") String tag) {
         log.debug("POST /api/v1/projects/{}/tags - Tag: {}", projectId, tag);
-        
+
         try {
             if (tag == null || tag.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            
+
             Project project = projectService.addTag(projectId, tag.trim());
             ProjectDTO projectDTO = dtoMapper.toDTO(project);
-            
+
             log.debug("Tag '{}' zu Projekt {} hinzugefügt", tag, projectId);
             return ResponseEntity.ok(projectDTO);
-            
+
         } catch (EntityNotFoundException e) {
             log.warn("Projekt nicht gefunden für Tag-Hinzufügung: {}", projectId);
             return ResponseEntity.notFound().build();
@@ -367,20 +363,20 @@ public class ProjectController {
      */
     @DeleteMapping("/{projectId}/tags")
     public ResponseEntity<ProjectDTO> removeTag(@PathVariable("projectId") String projectId,
-                                              @RequestParam("tag") String tag) {
+            @RequestParam("tag") String tag) {
         log.debug("DELETE /api/v1/projects/{}/tags - Tag: {}", projectId, tag);
-        
+
         try {
             if (tag == null || tag.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            
+
             Project project = projectService.removeTag(projectId, tag.trim());
             ProjectDTO projectDTO = dtoMapper.toDTO(project);
-            
+
             log.debug("Tag '{}' von Projekt {} entfernt", tag, projectId);
             return ResponseEntity.ok(projectDTO);
-            
+
         } catch (EntityNotFoundException e) {
             log.warn("Projekt nicht gefunden für Tag-Entfernung: {}", projectId);
             return ResponseEntity.notFound().build();
@@ -395,16 +391,16 @@ public class ProjectController {
      */
     @PutMapping("/{projectId}/tags")
     public ResponseEntity<ProjectDTO> setTags(@PathVariable("projectId") String projectId,
-                                            @RequestBody Set<String> tags) {
+            @RequestBody Set<String> tags) {
         log.debug("PUT /api/v1/projects/{}/tags - Tags: {}", projectId, tags);
-        
+
         try {
             Project project = projectService.setTags(projectId, tags);
             ProjectDTO projectDTO = dtoMapper.toDTO(project);
-            
+
             log.debug("Tags für Projekt {} gesetzt: {}", projectId, tags);
             return ResponseEntity.ok(projectDTO);
-            
+
         } catch (EntityNotFoundException e) {
             log.warn("Projekt nicht gefunden für Tag-Update: {}", projectId);
             return ResponseEntity.notFound().build();

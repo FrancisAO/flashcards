@@ -1,4 +1,4 @@
-package com.fao.flashcards.adapter.rest;
+package com.fao.flashcards.bootstrap.adapter.rest;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

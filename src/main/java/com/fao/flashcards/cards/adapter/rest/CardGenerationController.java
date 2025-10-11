@@ -5,8 +5,8 @@ import com.fao.flashcards.cards.application.port.dto.AIGenerationRequestDTO;
 import com.fao.flashcards.cards.application.port.dto.CardDTO;
 import com.fao.flashcards.cards.application.port.dto.CardGenerationRequestDTO;
 import com.fao.flashcards.cards.application.port.dto.DocumentUploadDTO;
+import com.fao.flashcards.cards.application.port.in.CardGenerationInputPort;
 import com.fao.flashcards.cards.application.port.out.DocumentProcessingPort;
-import com.fao.flashcards.cards.application.service.CardGenerationService;
 import com.fao.flashcards.cards.model.AIGeneratedCard;
 import com.fao.flashcards.cards.model.AIGenerationRequest;
 import com.fao.flashcards.cards.model.Card;
@@ -31,10 +31,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/decks/{deckId}/generate")
 public class CardGenerationController {
 
-    private final CardGenerationService cardGenerationService;
+    private final CardGenerationInputPort cardGenerationService;
 
     @Autowired
-    public CardGenerationController(CardGenerationService cardGenerationService) {
+    public CardGenerationController(CardGenerationInputPort cardGenerationService) {
         this.cardGenerationService = cardGenerationService;
     }
 

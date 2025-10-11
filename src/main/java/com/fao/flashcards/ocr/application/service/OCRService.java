@@ -11,11 +11,12 @@ import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import com.fao.flashcards.cards.model.FileType;
 import com.fao.flashcards.ocr.application.OCRProcessingException;
+import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
+import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.application.port.out.ExtractedTextRepository;
 import com.fao.flashcards.ocr.application.port.out.OCRProcessingPort;
 import com.fao.flashcards.ocr.application.port.out.OCRResultRepository;
@@ -28,32 +29,28 @@ import com.fao.flashcards.ocr.model.OCRStatus;
 import com.fao.flashcards.ocr.model.ProjectFile;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service für OCR-Verarbeitung.
  * Orchestriert OCR-Verarbeitung, Status-Management und Text-Bearbeitung.
  */
-@Service
 @Validated
 @Slf4j
-public class OCRService {
+public class OCRService implements OCRInputPort {
 
     private final OCRProcessingPort ocrProcessingPort;
     private final ExtractedTextRepository extractedTextRepository;
     private final OCRResultRepository ocrResultRepository;
     private final ProjectFileRepository projectFileRepository;
-    private final ProjectService projectService;
+    private final OcrProjectInputPort projectService;
 
     @Autowired
     public OCRService(OCRProcessingPort ocrProcessingPort,
             ExtractedTextRepository extractedTextRepository,
             OCRResultRepository ocrResultRepository,
             ProjectFileRepository projectFileRepository,
-            ProjectService projectService) {
+            OcrProjectInputPort projectService) {
         this.ocrProcessingPort = ocrProcessingPort;
         this.extractedTextRepository = extractedTextRepository;
         this.ocrResultRepository = ocrResultRepository;
@@ -64,7 +61,8 @@ public class OCRService {
     /**
      * Verarbeitet eine einzelne Datei per OCR.
      */
-    public ExtractedText processFile(@NotBlank String fileId, @Valid OCROptions options) throws OCRProcessingException {
+    @Override
+    public ExtractedText processFile(String fileId, OCROptions options) throws OCRProcessingException {
         log.info("Starte OCR-Verarbeitung für Datei: {}", fileId);
 
         ProjectFile projectFile = getProjectFile(fileId);
@@ -129,14 +127,16 @@ public class OCRService {
     /**
      * Verarbeitet eine einzelne Datei per OCR mit Standard-Optionen.
      */
-    public ExtractedText processFile(@NotBlank String fileId) throws OCRProcessingException {
+    @Override
+    public ExtractedText processFile(String fileId) throws OCRProcessingException {
         return processFile(fileId, OCROptions.defaultOptions());
     }
 
     /**
      * Verarbeitet mehrere Dateien als Batch per OCR.
      */
-    public List<ExtractedText> processBatch(@NotNull List<String> fileIds, @Valid OCROptions options)
+    @Override
+    public List<ExtractedText> processBatch(List<String> fileIds, OCROptions options)
             throws OCRProcessingException {
         log.info("Starte Batch-OCR-Verarbeitung für {} Dateien", fileIds.size());
 
@@ -241,15 +241,17 @@ public class OCRService {
     /**
      * Verarbeitet mehrere Dateien als Batch per OCR mit Standard-Optionen.
      */
-    public List<ExtractedText> processBatch(@NotNull List<String> fileIds) throws OCRProcessingException {
+    @Override
+    public List<ExtractedText> processBatch(List<String> fileIds) throws OCRProcessingException {
         return processBatch(fileIds, OCROptions.defaultOptions());
     }
 
     /**
      * Asynchrone OCR-Verarbeitung einer einzelnen Datei.
      */
+    @Override
     @Async
-    public CompletableFuture<ExtractedText> processFileAsync(@NotBlank String fileId, @Valid OCROptions options) {
+    public CompletableFuture<ExtractedText> processFileAsync(String fileId, OCROptions options) {
         try {
             ExtractedText result = processFile(fileId, options);
             return CompletableFuture.completedFuture(result);
@@ -264,9 +266,10 @@ public class OCRService {
     /**
      * Asynchrone Batch-OCR-Verarbeitung.
      */
+    @Override
     @Async
-    public CompletableFuture<List<ExtractedText>> processBatchAsync(@NotNull List<String> fileIds,
-            @Valid OCROptions options) {
+    public CompletableFuture<List<ExtractedText>> processBatchAsync(List<String> fileIds,
+            OCROptions options) {
         try {
             List<ExtractedText> results = processBatch(fileIds, options);
             return CompletableFuture.completedFuture(results);
@@ -281,7 +284,8 @@ public class OCRService {
     /**
      * Bearbeitet den extrahierten Text.
      */
-    public ExtractedText editExtractedText(@NotBlank String extractedTextId, @NotBlank String editedContent) {
+    @Override
+    public ExtractedText editExtractedText(String extractedTextId, String editedContent) {
         log.info("Bearbeite ExtractedText: {}", extractedTextId);
 
         ExtractedText extractedText = extractedTextRepository.findById(extractedTextId)
@@ -298,7 +302,8 @@ public class OCRService {
     /**
      * Setzt den bearbeiteten Text zurück auf den ursprünglich extrahierten Text.
      */
-    public ExtractedText resetEditedText(@NotBlank String extractedTextId) {
+    @Override
+    public ExtractedText resetEditedText(String extractedTextId) {
         log.info("Setze bearbeiteten Text zurück: {}", extractedTextId);
 
         ExtractedText extractedText = extractedTextRepository.findById(extractedTextId)
@@ -316,7 +321,8 @@ public class OCRService {
     /**
      * Findet alle Dateien eines Projekts die noch nicht per OCR verarbeitet wurden.
      */
-    public List<ProjectFile> getUnprocessedFiles(@NotBlank String projectId) {
+    @Override
+    public List<ProjectFile> getUnprocessedFiles(String projectId) {
         log.debug("Lade unverarbeitete Dateien für Projekt: {}", projectId);
         return projectFileRepository.findFilesWithoutExtractedTextByProjectId(projectId);
     }
@@ -324,7 +330,8 @@ public class OCRService {
     /**
      * Findet alle ExtractedTexts eines Projekts.
      */
-    public List<ExtractedText> getProjectExtractedTexts(@NotBlank String projectId) {
+    @Override
+    public List<ExtractedText> getProjectExtractedTexts(String projectId) {
         log.debug("Lade ExtractedTexts für Projekt: {}", projectId);
         return extractedTextRepository.findByProjectId(projectId);
     }
@@ -332,7 +339,8 @@ public class OCRService {
     /**
      * Findet OCR-Ergebnisse eines Projekts.
      */
-    public List<OCRResult> getProjectOCRResults(@NotBlank String projectId) {
+    @Override
+    public List<OCRResult> getProjectOCRResults(String projectId) {
         log.debug("Lade OCR-Ergebnisse für Projekt: {}", projectId);
         return ocrResultRepository.findByProjectId(projectId);
     }
@@ -340,7 +348,8 @@ public class OCRService {
     /**
      * Gibt OCR-Status-Statistiken für ein Projekt zurück.
      */
-    public OCRProjectStatistics getProjectStatistics(@NotBlank String projectId) {
+    @Override
+    public OCRProjectStatistics getProjectStatistics(String projectId) {
         log.debug("Lade OCR-Statistiken für Projekt: {}", projectId);
 
         long totalFiles = projectFileRepository.countByProjectId(projectId);

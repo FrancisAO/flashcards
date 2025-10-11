@@ -9,11 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fao.flashcards.cards.application.port.dto.CardDTO;
+import com.fao.flashcards.cards.application.port.in.CardInputPort;
 import com.fao.flashcards.cards.application.port.out.repository.CardRepository;
 import com.fao.flashcards.cards.model.Card;
 
 @Service
-public class CardService {
+public class CardService implements CardInputPort {
 
     private final CardRepository cardRepository;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
@@ -23,18 +24,21 @@ public class CardService {
         this.cardRepository = cardRepository;
     }
 
+    @Override
     public List<CardDTO> getAllCards() {
         return cardRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public CardDTO getCardById(String id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Karte mit ID " + id + " wurde nicht gefunden"));
         return convertToDTO(card);
     }
 
+    @Override
     public CardDTO createCard(CardDTO cardDTO) {
         Card card = new Card();
         card.setFront(cardDTO.getFront());
@@ -48,6 +52,7 @@ public class CardService {
         return convertToDTO(savedCard);
     }
 
+    @Override
     public CardDTO updateCard(String id, CardDTO cardDTO) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Karte mit ID " + id + " wurde nicht gefunden"));
@@ -63,6 +68,7 @@ public class CardService {
         return convertToDTO(updatedCard);
     }
 
+    @Override
     public void deleteCard(String id) {
         if (!cardRepository.existsById(id)) {
             throw new NoSuchElementException("Karte mit ID " + id + " wurde nicht gefunden");
@@ -70,12 +76,14 @@ public class CardService {
         cardRepository.deleteById(id);
     }
 
+    @Override
     public List<CardDTO> getCardsByTag(String tag) {
         return cardRepository.findByTagsContaining(tag).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<CardDTO> getCardsByTags(List<String> tags) {
         if (tags == null || tags.isEmpty()) {
             return getAllCards();
@@ -87,6 +95,7 @@ public class CardService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<String> getAllTags() {
         return cardRepository.findAll().stream()
                 .flatMap(card -> card.getTags().stream())

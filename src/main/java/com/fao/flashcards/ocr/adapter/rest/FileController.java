@@ -1,10 +1,10 @@
 package com.fao.flashcards.ocr.adapter.rest;
 
 import com.fao.flashcards.cards.application.port.dto.FileUploadResponse;
-import com.fao.flashcards.cards.application.service.FileUploadService;
+import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
 import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
-import com.fao.flashcards.ocr.application.service.OCRService;
+import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
 import com.fao.flashcards.ocr.model.ExtractedText;
 import com.fao.flashcards.ocr.model.ProjectFile;
 
@@ -43,12 +43,12 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FileController {
 
-    private final FileUploadService fileUploadService;
+    private final FileUploadInputPort fileUploadService;
     private final DTOMapper dtoMapper;
-    private final OCRService ocrService;
+    private final OCRInputPort ocrService;
 
     @Autowired
-    public FileController(FileUploadService fileUploadService, DTOMapper dtoMapper, OCRService ocrService) {
+    public FileController(FileUploadInputPort fileUploadService, DTOMapper dtoMapper, OCRInputPort ocrService) {
         this.fileUploadService = fileUploadService;
         this.dtoMapper = dtoMapper;
         this.ocrService = ocrService;

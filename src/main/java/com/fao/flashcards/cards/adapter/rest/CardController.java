@@ -1,7 +1,7 @@
 package com.fao.flashcards.cards.adapter.rest;
 
 import com.fao.flashcards.cards.application.port.dto.CardDTO;
-import com.fao.flashcards.cards.application.service.CardService;
+import com.fao.flashcards.cards.application.port.in.CardInputPort;
 
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -19,10 +19,10 @@ import java.util.List;
 public class CardController {
 
     private static final Logger logger = LoggerFactory.getLogger(CardController.class);
-    private final CardService cardService;
+    private final CardInputPort cardService;
 
     @Autowired
-    public CardController(CardService cardService) {
+    public CardController(CardInputPort cardService) {
         this.cardService = cardService;
     }
 
