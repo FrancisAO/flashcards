@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.fao.flashcards.cards.application.port.dto.CardDTO;
 import com.fao.flashcards.cards.application.port.dto.DeckDTO;
 import com.fao.flashcards.cards.application.port.dto.DeckWithCardsDTO;
@@ -19,7 +16,7 @@ import com.fao.flashcards.cards.model.Card;
 import com.fao.flashcards.cards.model.Deck;
 import com.fao.flashcards.cards.model.DeckCard;
 
-@Service
+
 public class DeckService implements DeckInputPort {
 
     private final DeckRepository deckRepository;
@@ -27,7 +24,6 @@ public class DeckService implements DeckInputPort {
     private final DeckCardRepository deckCardRepository;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 
-    @Autowired
     public DeckService(DeckRepository deckRepository, CardRepository cardRepository,
             DeckCardRepository deckCardRepository) {
         this.deckRepository = deckRepository;

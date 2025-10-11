@@ -5,21 +5,17 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.fao.flashcards.cards.application.port.dto.CardDTO;
 import com.fao.flashcards.cards.application.port.in.CardInputPort;
 import com.fao.flashcards.cards.application.port.out.repository.CardRepository;
 import com.fao.flashcards.cards.model.Card;
 
-@Service
+
 public class CardService implements CardInputPort {
 
     private final CardRepository cardRepository;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 
-    @Autowired
     public CardService(CardRepository cardRepository) {
         this.cardRepository = cardRepository;
     }

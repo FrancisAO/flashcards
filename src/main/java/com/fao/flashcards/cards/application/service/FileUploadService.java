@@ -16,12 +16,10 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  * Verwaltet Datei-Uploads, Validierung, Speicherung und
  * Storage-Path-Generierung.
  */
-@Service
 @Validated
 @Slf4j
 public class FileUploadService implements FileUploadInputPort {
@@ -79,7 +76,6 @@ public class FileUploadService implements FileUploadInputPort {
     // Pattern für sichere Dateinamen
     private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._-]+$");
 
-    @Autowired
     public FileUploadService(ProjectFileRepository projectFileRepository,
             ProjectRepository projectRepository,
             OcrProjectInputPort projectService) {

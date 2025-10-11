@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.validation.annotation.Validated;
 
@@ -45,7 +44,7 @@ public class OCRService implements OCRInputPort {
     private final ProjectFileRepository projectFileRepository;
     private final OcrProjectInputPort projectService;
 
-    @Autowired
+
     public OCRService(OCRProcessingPort ocrProcessingPort,
             ExtractedTextRepository extractedTextRepository,
             OCRResultRepository ocrResultRepository,
