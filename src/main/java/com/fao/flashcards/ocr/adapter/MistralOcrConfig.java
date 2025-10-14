@@ -15,41 +15,41 @@ import com.fao.flashcards.ocr.application.port.out.OCRProcessingPort;
  */
 @Configuration
 public class MistralOcrConfig {
-    
+
     @Value("${mistral.api.key}")
     private String mistralApiKey;
-    
-    @Value("${mistral.api.base-url}")
+
+    @Value("${mistral.api.ocr.url}")
     private String mistralApiUrl;
-    
+
     @Value("${mistral.ocr.model}")
     private String mistralOcrModel;
-    
+
     @Value("${mistral.ocr.max-tokens:4096}")
     private Integer mistralOcrMaxTokens;
-    
+
     @Value("${mistral.ocr.temperature:0.0}")
     private Double mistralOcrTemperature;
-    
+
     /**
      * Bean für RestTemplate speziell für OCR-Requests.
      * Konfiguriert mit angemessenen Timeouts für OCR-Verarbeitung.
      */
     @Bean("ocrRestTemplate")
     public RestTemplate ocrRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
-        
-        
-        
+        RestTemplate restTemplate = new RestTemplate(
+                new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+
         return restTemplate;
     }
-    
+
     /**
      * Primary Bean für OCRProcessingPort.
      * Verwendet den MistralOCRAdapter als Standard-Implementation.
      */
     @Bean
     public OCRProcessingPort ocrProcessingPort() {
-        return new MistralOCRAdapter(ocrRestTemplate());
+        return new MistralOCRAdapter(ocrRestTemplate(), new MistralOCRConfigDTO(mistralApiKey, mistralApiUrl,
+                mistralOcrModel, mistralOcrMaxTokens, mistralOcrTemperature));
     }
 }

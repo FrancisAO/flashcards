@@ -1,29 +1,5 @@
 package com.fao.flashcards.ocr.adapter.rest;
 
-import com.fao.flashcards.cards.application.port.dto.FileUploadResponse;
-import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
-import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
-import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
-import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
-import com.fao.flashcards.ocr.model.ExtractedText;
-import com.fao.flashcards.ocr.model.ProjectFile;
-
-import jakarta.persistence.EntityNotFoundException;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +7,38 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
+import com.fao.flashcards.cards.application.port.dto.FileUploadResponse;
+import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
+import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
+import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
+import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
+import com.fao.flashcards.ocr.model.ExtractedText;
+import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.shared.model.pagination.Page;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * REST Controller für Datei-Management.
@@ -75,7 +83,8 @@ public class FileController {
             }
             
             // Datei hochladen
-            ProjectFile projectFile = fileUploadService.uploadFile(projectId, file);
+
+            ProjectFile projectFile = fileUploadService.uploadFile(projectId, new MultipartFileAdapter(file));
             FileUploadResponse response = dtoMapper.toFileUploadResponse(projectFile);
             
             log.info("Datei erfolgreich hochgeladen: {} -> {} (ID: {})", 
@@ -130,7 +139,7 @@ public class FileController {
                     continue;
                 }
                 
-                ProjectFile projectFile = fileUploadService.uploadFile(projectId, file);
+                ProjectFile projectFile = fileUploadService.uploadFile(projectId, new MultipartFileAdapter(file));
                 FileUploadResponse response = dtoMapper.toFileUploadResponse(projectFile);
                 responses.add(response);
                 successCount++;
@@ -335,9 +344,9 @@ public class FileController {
             // Pagination Parameter validieren
             if (page < 0) page = 0;
             if (size <= 0 || size > 100) size = 20; // Max 100 Dateien pro Seite
-            
-            Pageable pageable = PageRequest.of(page, size);
-            
+
+            PageRequest pageable = new PageRequest(page, size);
+
             // Dateien mit optionalen Filtern abrufen
             Page<ProjectFile> projectFilePage;
             if (filename != null || fileType != null) {

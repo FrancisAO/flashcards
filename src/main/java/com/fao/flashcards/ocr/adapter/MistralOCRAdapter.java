@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -42,15 +41,14 @@ public class MistralOCRAdapter implements OCRProcessingPort {
 
     private static final Logger logger = LoggerFactory.getLogger(MistralOCRAdapter.class);
 
-    private static final String MISTRAL_OCR_ENDPOINT = "https://api.mistral.ai/v1/ocr";
-    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+    private final String mistralApiEndpoint;
+    private long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
     private static final List<String> SUPPORTED_MIME_TYPES = Arrays.asList(
             "image/jpeg", "image/jpg", "image/png", "image/gif", "image/bmp", "image/tiff",
             "application/pdf", "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-    @Value("${mistral.api.key}")
-    private String apiKey;
+    private final String apiKey;
 
     private final RestTemplate restTemplate;
 
@@ -59,15 +57,12 @@ public class MistralOCRAdapter implements OCRProcessingPort {
      *
      * @param restTemplate HTTP-Client für API-Aufrufe
      */
-    public MistralOCRAdapter(RestTemplate restTemplate) {
+    public MistralOCRAdapter(RestTemplate restTemplate, MistralOCRConfigDTO configDTO) {
         this.restTemplate = restTemplate;
-    }
+        apiKey = configDTO.mistralApiKey();
+        mistralApiEndpoint = configDTO.mistralApiUrl();
 
-    /**
-     * Standard-Konstruktor mit neuem RestTemplate.
-     */
-    public MistralOCRAdapter() {
-        this.restTemplate = new RestTemplate();
+        logger.info("Mistral API-Key: " + apiKey);
     }
 
     @Override
@@ -221,35 +216,39 @@ public class MistralOCRAdapter implements OCRProcessingPort {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Content-Type", "application/json");
             headers.set(HttpHeaders.USER_AGENT, "curl/8.4.0");
-            //headers.set("Authorization", "Bearer");
+            // headers.set("Authorization", "Bearer");
             headers.setBearerAuth(apiKey);
-            
+
             HttpEntity<MistralOCRRequest> entity = new HttpEntity<>(request, headers);
 
-            logger.debug("Sende OCR-Request an Mistral API: {}", MISTRAL_OCR_ENDPOINT);
-            /*RestTemplate restTemplate = new RestTemplate(
-                    new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
-            restTemplate.setInterceptors(List.of((req, body, execution) -> {
-                logger.debug("URI: {}", req.getURI());
-                logger.debug("Method: {}", req.getMethod());
-                req.getHeaders().forEach((k, v) -> logger.debug("{}: {}", k, v));
-                logger.debug("Body: {}", new String(body, StandardCharsets.UTF_8));
-                return execution.execute(req, body);
-            }));*/
+            logger.debug("Sende OCR-Request an Mistral API: {}", mistralApiEndpoint);
+            /*
+             * RestTemplate restTemplate = new RestTemplate(
+             * new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+             * restTemplate.setInterceptors(List.of((req, body, execution) -> {
+             * logger.debug("URI: {}", req.getURI());
+             * logger.debug("Method: {}", req.getMethod());
+             * req.getHeaders().forEach((k, v) -> logger.debug("{}: {}", k, v));
+             * logger.debug("Body: {}", new String(body, StandardCharsets.UTF_8));
+             * return execution.execute(req, body);
+             * }));
+             */
 
             // Payload als JSON auf die Konsole/loggen (nahe Zeile 215 einfügen)
-            /*try {
-                ObjectMapper om = new ObjectMapper();
-                String json = om.writeValueAsString(request);
-                logger.debug("OCR-Request Payload: {}", json);
-                // Optional direkt auf die Konsole:
-                // System.out.println(json);
-            } catch (Exception ex) {
-                logger.warn("Konnte Request nicht serialisieren: {}", ex.getMessage());
-            }*/
+            /*
+             * try {
+             * ObjectMapper om = new ObjectMapper();
+             * String json = om.writeValueAsString(request);
+             * logger.debug("OCR-Request Payload: {}", json);
+             * // Optional direkt auf die Konsole:
+             * // System.out.println(json);
+             * } catch (Exception ex) {
+             * logger.warn("Konnte Request nicht serialisieren: {}", ex.getMessage());
+             * }
+             */
 
             ResponseEntity<MistralOCRResponse> response = restTemplate.exchange(
-                    MISTRAL_OCR_ENDPOINT,
+                    mistralApiEndpoint,
                     HttpMethod.POST,
                     entity,
                     MistralOCRResponse.class);

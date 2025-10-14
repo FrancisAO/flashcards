@@ -3,14 +3,14 @@ package com.fao.flashcards.cards.adapter.bootstrap;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
 import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.cards.application.service.FileUploadService;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.shared.model.pagination.Page;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,7 +25,7 @@ public class FileUploadServiceAdapter implements FileUploadInputPort {
     }
 
     @Override
-    public ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFile file) throws IOException {
+    public ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFileAdapter file) throws IOException {
         return fileUploadService.uploadFile(projectId, file);
     }
 
@@ -60,12 +60,12 @@ public class FileUploadServiceAdapter implements FileUploadInputPort {
     }
 
     @Override
-    public Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType, Pageable pageable) {
+    public Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType, PageRequest pageable) {
         return fileUploadService.searchProjectFiles(projectId, filename, fileType, pageable);
     }
 
     @Override
-    public Page<ProjectFile> getProjectFiles(String projectId, Pageable pageable) {
+    public Page<ProjectFile> getProjectFiles(String projectId, PageRequest pageable) {
         return fileUploadService.getProjectFiles(projectId, pageable);
     }
 

@@ -3,11 +3,10 @@ package com.fao.flashcards.cards.application.port.in;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.shared.model.pagination.Page;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +16,7 @@ public interface FileUploadInputPort {
     /**
      * Verarbeitet einen Datei-Upload für ein bestimmtes Projekt.
      */
-    ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFile file) throws IOException;
+    ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFileAdapter fileAdapter) throws IOException;
 
     /**
      * Löscht eine ProjectFile und die zugehörige physische Datei.
@@ -49,8 +48,8 @@ public interface FileUploadInputPort {
      */
     long getTotalProjectFileSize(@NotBlank String projectId);
 
-    Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType, Pageable pageable);
+    Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType, PageRequest pageable);
 
-    Page<ProjectFile> getProjectFiles(String projectId, Pageable pageable);
+    Page<ProjectFile> getProjectFiles(String projectId, PageRequest pageable);
 
 }

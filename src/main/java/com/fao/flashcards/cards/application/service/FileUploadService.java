@@ -16,21 +16,19 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
 import com.fao.flashcards.cards.application.port.in.FileUploadConfig;
 import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
+import com.fao.flashcards.cards.application.port.types.EntityNotFoundException;
 import com.fao.flashcards.cards.model.FileType;
 import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
 import com.fao.flashcards.ocr.model.Project;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.shared.model.pagination.Page;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -83,7 +81,7 @@ public class FileUploadService implements FileUploadInputPort {
      * Verarbeitet einen Datei-Upload für ein bestimmtes Projekt.
      */
     @Override
-    public ProjectFile uploadFile(String projectId, MultipartFile file) throws IOException {
+    public ProjectFile uploadFile(String projectId, MultipartFileAdapter file) throws IOException {
         log.info("Starte Datei-Upload für Projekt {}: {}", projectId, file.getOriginalFilename());
 
         // Projekt validieren
@@ -123,7 +121,7 @@ public class FileUploadService implements FileUploadInputPort {
     /**
      * Validiert eine hochgeladene Datei.
      */
-    private void validateFile(MultipartFile file) {
+    private void validateFile(MultipartFileAdapter file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Datei ist leer");
         }
@@ -164,7 +162,7 @@ public class FileUploadService implements FileUploadInputPort {
     /**
      * Bestimmt den FileType basierend auf MIME-Type und Dateiendung.
      */
-    private FileType determineFileType(MultipartFile file) {
+    private FileType determineFileType(MultipartFileAdapter file) {
         String contentType = file.getContentType();
         String extension = getFileExtension(file.getOriginalFilename()).toLowerCase();
 
@@ -222,7 +220,7 @@ public class FileUploadService implements FileUploadInputPort {
     /**
      * Speichert eine Datei physisch im Dateisystem.
      */
-    private Path saveFileToStorage(MultipartFile file, String storagePath) throws IOException {
+    private Path saveFileToStorage(MultipartFileAdapter file, String storagePath) throws IOException {
         Path targetPath = Paths.get(storagePath);
 
         // Verzeichnis erstellen falls nicht vorhanden
@@ -394,7 +392,8 @@ public class FileUploadService implements FileUploadInputPort {
     }
 
     @Override
-    public Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType, Pageable pageable) {
+    public Page<ProjectFile> searchProjectFiles(String projectId, String filename, String fileType,
+            PageRequest pageable) {
         List<ProjectFile> projectFiles = getProjectFiles(projectId);
 
         // Filter anwenden wenn Parameter gesetzt sind
@@ -414,7 +413,7 @@ public class FileUploadService implements FileUploadInputPort {
     }
 
     @Override
-    public Page<ProjectFile> getProjectFiles(String projectId, Pageable pageable) {
+    public Page<ProjectFile> getProjectFiles(String projectId, PageRequest pageable) {
         List<ProjectFile> projectFiles = getProjectFiles(projectId);
         return createPageFromList(projectFiles, pageable);
     }
@@ -422,13 +421,13 @@ public class FileUploadService implements FileUploadInputPort {
     /**
      * Hilfsmethode um aus einer Liste eine Page zu erstellen.
      */
-    private Page<ProjectFile> createPageFromList(List<ProjectFile> projectFiles, Pageable pageable) {
+    private Page<ProjectFile> createPageFromList(List<ProjectFile> projectFiles, PageRequest pageable) {
         int total = projectFiles.size();
         int start = Math.min((int) pageable.getOffset(), total);
         int end = Math.min(start + pageable.getPageSize(), total);
 
         List<ProjectFile> content = start >= total ? Collections.emptyList() : projectFiles.subList(start, end);
 
-        return new PageImpl<>(content, pageable, total);
+        return new Page<>(content, pageable, total);
     }
 }
