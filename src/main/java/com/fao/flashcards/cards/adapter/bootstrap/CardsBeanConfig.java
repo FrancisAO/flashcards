@@ -2,6 +2,7 @@ package com.fao.flashcards.cards.adapter.bootstrap;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import com.fao.flashcards.cards.adapter.ai.DirectOpenRouterAIAdapter;
 import com.fao.flashcards.cards.adapter.document.DocumentProcessingAdapter;
@@ -87,7 +88,7 @@ public class CardsBeanConfig {
     }
 
     // ============================================================================
-    // Service Configurations 
+    // Service Configurations
     // ============================================================================
 
     @Bean
@@ -114,11 +115,17 @@ public class CardsBeanConfig {
     }
 
     @Bean
-    public FileUploadInputPort fileUploadInputPort(
+    public FileUploadService fileUploadService(
             ProjectFileRepository projectFileRepository,
             ProjectRepository projectRepository,
             OcrProjectInputPort ocrProjectInputPort, FileUploadConfig fileUploadConfig) {
         return new FileUploadService(projectFileRepository, projectRepository, ocrProjectInputPort, fileUploadConfig);
+    }
+
+    @Bean
+    @Primary
+    public FileUploadInputPort fileUploadInputPort(FileUploadService fileUploadService) {
+        return new FileUploadServiceAdapter(fileUploadService);
     }
 
     @Bean

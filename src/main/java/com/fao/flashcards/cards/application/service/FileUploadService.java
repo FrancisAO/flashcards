@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fao.flashcards.cards.application.port.in.FileUploadConfig;
@@ -39,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
  * Verwaltet Datei-Uploads, Validierung, Speicherung und
  * Storage-Path-Generierung.
  */
-@Validated
 @Slf4j
 public class FileUploadService implements FileUploadInputPort {
 
