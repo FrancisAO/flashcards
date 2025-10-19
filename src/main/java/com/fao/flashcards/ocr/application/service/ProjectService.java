@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 
 import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
@@ -13,6 +11,8 @@ import com.fao.flashcards.ocr.application.port.out.ExtractedTextRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
 import com.fao.flashcards.ocr.model.Project;
+import com.fao.flashcards.shared.model.pagination.Page;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +69,7 @@ public class ProjectService implements OcrProjectInputPort {
      * Findet alle Projekte mit Paginierung.
      */
     @Override
-    public Page<Project> getAllProjects(Pageable pageable) {
+    public Page<Project> getAllProjects(PageRequest pageable) {
         log.debug("Lade alle Projekte mit Paginierung: {}", pageable);
         return projectOutputPort.findAllByOrderByCreatedAtDesc(pageable);
     }
@@ -78,7 +78,7 @@ public class ProjectService implements OcrProjectInputPort {
      * Sucht Projekte nach Namen oder Beschreibung.
      */
     @Override
-    public Page<Project> searchProjects(String searchTerm, Pageable pageable) {
+    public Page<Project> searchProjects(String searchTerm, PageRequest pageable) {
         log.debug("Suche Projekte mit Begriff: {}", searchTerm);
         return projectOutputPort.searchByNameOrDescription(searchTerm, pageable);
     }

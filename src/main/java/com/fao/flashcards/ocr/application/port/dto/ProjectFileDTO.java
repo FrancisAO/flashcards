@@ -1,6 +1,6 @@
 package com.fao.flashcards.ocr.application.port.dto;
 
-import com.fao.flashcards.cards.model.FileType;
+import com.fao.flashcards.ocr.model.FileType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

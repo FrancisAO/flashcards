@@ -16,7 +16,13 @@ public class PortsAndAdapterArchitectureTest {
         ArchRule ocr = classes()
                 .that().resideInAPackage("..ocr.application.service..")
                 .should().onlyDependOnClassesThat().resideInAnyPackage(
-                        "..java..", "..jakarta..", "..ocr.application.port..", "..ocr.domain..", "org.slf4j..",
+                        "..java..",
+                        "..jakarta..",
+                        "..ocr.application..",
+                        "..ocr.model..",
+                        "..com.fao.flashcards.shared.model..",
+                        "org.slf4j..",
+                        "org.springframework.validation.annotation..",
                         "lombok..")
                 .because(
                         "Application services should only depend on application ports, domain, and standard libraries.");

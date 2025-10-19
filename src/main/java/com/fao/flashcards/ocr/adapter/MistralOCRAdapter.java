@@ -61,8 +61,6 @@ public class MistralOCRAdapter implements OCRProcessingPort {
         this.restTemplate = restTemplate;
         apiKey = configDTO.mistralApiKey();
         mistralApiEndpoint = configDTO.mistralApiUrl();
-
-        logger.info("Mistral API-Key: " + apiKey);
     }
 
     @Override

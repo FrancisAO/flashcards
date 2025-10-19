@@ -1,11 +1,11 @@
-package com.fao.flashcards.cards.adapter.web;
+package com.fao.flashcards.ocr.adapter.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fao.flashcards.cards.application.port.in.UploadableFile;
+import com.fao.flashcards.ocr.model.UploadableFile;
 
 public class MultipartFileAdapter implements UploadableFile {
 

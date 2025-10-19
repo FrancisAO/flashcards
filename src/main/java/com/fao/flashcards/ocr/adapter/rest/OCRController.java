@@ -1,7 +1,6 @@
 package com.fao.flashcards.ocr.adapter.rest;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.OCRProcessingException;
 import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
 import com.fao.flashcards.ocr.application.port.dto.ExtractedTextDTO;
@@ -28,13 +26,13 @@ import com.fao.flashcards.ocr.application.port.dto.OCRProcessResponse;
 import com.fao.flashcards.ocr.application.port.dto.OCRResultDTO;
 import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
 import com.fao.flashcards.ocr.application.port.dto.UpdateTextRequest;
+import com.fao.flashcards.ocr.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
 import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.application.service.OCRService;
 import com.fao.flashcards.ocr.model.ExtractedText;
 import com.fao.flashcards.ocr.model.OCROptions;
 import com.fao.flashcards.ocr.model.OCRResult;
-import com.fao.flashcards.ocr.model.OCRStatus;
 import com.fao.flashcards.ocr.model.ProjectFile;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -84,37 +82,22 @@ public class OCRController {
             // OCR-Optionen konvertieren
             OCROptions ocrOptions = options != null ? dtoMapper.toOCROptions(options) : OCROptions.defaultOptions();
 
-            if (async) {
-                // Asynchrone Verarbeitung
-                CompletableFuture<ExtractedText> future = ocrService.processFileAsync(fileId, ocrOptions);
+            // Synchrone Verarbeitung
+            ExtractedText extractedText = ocrService.processFile(fileId, ocrOptions);
 
-                // Sofortige Antwort mit PROCESSING Status
-                OCRProcessResponse response = OCRProcessResponse.singleFileSuccess(
-                        fileId, "unknown", null, null, null, null);
-                response.setOverallStatus(OCRStatus.PROCESSING);
-                response.setMessage("OCR-Verarbeitung gestartet (asynchron)");
+            // OCR-Result für Response laden
+            List<OCRResult> ocrResults = ocrService.getProjectOCRResults(
+                    extractedText.getProjectFile().getProject().getId());
 
-                log.info("Asynchrone OCR-Verarbeitung gestartet für Datei: {}", fileId);
-                return ResponseEntity.accepted().body(response);
+            OCRResult ocrResult = ocrResults.stream()
+                    .filter(r -> r.getExtractedText().getId().equals(extractedText.getId()))
+                    .findFirst()
+                    .orElse(null);
 
-            } else {
-                // Synchrone Verarbeitung
-                ExtractedText extractedText = ocrService.processFile(fileId, ocrOptions);
+            OCRProcessResponse response = dtoMapper.toOCRProcessResponse(extractedText, ocrResult);
 
-                // OCR-Result für Response laden
-                List<OCRResult> ocrResults = ocrService.getProjectOCRResults(
-                        extractedText.getProjectFile().getProject().getId());
-
-                OCRResult ocrResult = ocrResults.stream()
-                        .filter(r -> r.getExtractedText().getId().equals(extractedText.getId()))
-                        .findFirst()
-                        .orElse(null);
-
-                OCRProcessResponse response = dtoMapper.toOCRProcessResponse(extractedText, ocrResult);
-
-                log.info("Synchrone OCR-Verarbeitung abgeschlossen für Datei: {}", fileId);
-                return ResponseEntity.ok(response);
-            }
+            log.info("Synchrone OCR-Verarbeitung abgeschlossen für Datei: {}", fileId);
+            return ResponseEntity.ok(response);
 
         } catch (EntityNotFoundException e) {
             log.warn("Datei nicht gefunden für OCR-Verarbeitung: {}", fileId);
@@ -154,42 +137,25 @@ public class OCRController {
             // OCR-Optionen konvertieren
             OCROptions ocrOptions = dtoMapper.toOCROptions(request.toOCROptions());
 
-            if (async) {
-                // Asynchrone Batch-Verarbeitung
-                CompletableFuture<List<ExtractedText>> future = ocrService.processBatchAsync(request.getFileIds(),
-                        ocrOptions);
+            // Synchrone Batch-Verarbeitung
+            List<ExtractedText> extractedTexts = ocrService.processBatch(
+                    request.getFileIds(), ocrOptions);
 
-                // Sofortige Antwort
-                OCRProcessResponse response = new OCRProcessResponse();
-                response.setSuccess(true);
-                response.setMessage("Batch-OCR-Verarbeitung gestartet (asynchron)");
-                response.setOverallStatus(OCRStatus.PROCESSING);
+            // Response zusammenbauen
+            List<OCRProcessResponse.OCRFileResult> results = extractedTexts.stream()
+                    .map(et -> {
+                        ProjectFile pf = et.getProjectFile();
+                        return OCRProcessResponse.OCRFileResult.success(
+                                pf.getId(), pf.getOriginalFilename(), et.getId(),
+                                null, null, null); // Diese Werte könnten aus OCRResult geladen werden
+                    })
+                    .collect(Collectors.toList());
 
-                log.info("Asynchrone Batch-OCR-Verarbeitung gestartet für {} Dateien",
-                        request.getFileCount());
-                return ResponseEntity.accepted().body(response);
+            OCRProcessResponse response = OCRProcessResponse.batchResult(results);
 
-            } else {
-                // Synchrone Batch-Verarbeitung
-                List<ExtractedText> extractedTexts = ocrService.processBatch(
-                        request.getFileIds(), ocrOptions);
-
-                // Response zusammenbauen
-                List<OCRProcessResponse.OCRFileResult> results = extractedTexts.stream()
-                        .map(et -> {
-                            ProjectFile pf = et.getProjectFile();
-                            return OCRProcessResponse.OCRFileResult.success(
-                                    pf.getId(), pf.getOriginalFilename(), et.getId(),
-                                    null, null, null); // Diese Werte könnten aus OCRResult geladen werden
-                        })
-                        .collect(Collectors.toList());
-
-                OCRProcessResponse response = OCRProcessResponse.batchResult(results);
-
-                log.info("Synchrone Batch-OCR-Verarbeitung abgeschlossen: {} von {} erfolgreich",
-                        extractedTexts.size(), request.getFileCount());
-                return ResponseEntity.ok(response);
-            }
+            log.info("Synchrone Batch-OCR-Verarbeitung abgeschlossen: {} von {} erfolgreich",
+                    extractedTexts.size(), request.getFileCount());
+            return ResponseEntity.ok(response);
 
         } catch (OCRProcessingException e) {
             log.error("Batch-OCR-Verarbeitungsfehler: {}", e.getMessage());
@@ -335,30 +301,16 @@ public class OCRController {
             // Dann normale OCR-Verarbeitung durchführen
             OCROptions ocrOptions = options != null ? dtoMapper.toOCROptions(options) : OCROptions.defaultOptions();
 
-            if (async) {
-                // Asynchrone Wiederverarbeitung
-                CompletableFuture<ExtractedText> future = ocrService.processFileAsync(fileId, ocrOptions);
+            // Synchrone Wiederverarbeitung
+            ExtractedText extractedText = ocrService.processFile(fileId, ocrOptions);
 
-                OCRProcessResponse response = OCRProcessResponse.singleFileSuccess(
-                        fileId, "unknown", null, null, null, null);
-                response.setOverallStatus(OCRStatus.PROCESSING);
-                response.setMessage("OCR-Wiederverarbeitung gestartet (asynchron)");
+            // Response erstellen (vereinfacht)
+            OCRProcessResponse response = OCRProcessResponse.singleFileSuccess(
+                    fileId, extractedText.getProjectFile().getOriginalFilename(),
+                    extractedText.getId(), null, null, null);
 
-                log.info("Asynchrone OCR-Wiederverarbeitung gestartet für Datei: {}", fileId);
-                return ResponseEntity.accepted().body(response);
-
-            } else {
-                // Synchrone Wiederverarbeitung
-                ExtractedText extractedText = ocrService.processFile(fileId, ocrOptions);
-
-                // Response erstellen (vereinfacht)
-                OCRProcessResponse response = OCRProcessResponse.singleFileSuccess(
-                        fileId, extractedText.getProjectFile().getOriginalFilename(),
-                        extractedText.getId(), null, null, null);
-
-                log.info("Synchrone OCR-Wiederverarbeitung abgeschlossen für Datei: {}", fileId);
-                return ResponseEntity.ok(response);
-            }
+            log.info("Synchrone OCR-Wiederverarbeitung abgeschlossen für Datei: {}", fileId);
+            return ResponseEntity.ok(response);
 
         } catch (EntityNotFoundException e) {
             log.warn("Datei nicht gefunden für OCR-Wiederverarbeitung: {}", fileId);

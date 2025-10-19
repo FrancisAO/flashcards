@@ -1,4 +1,4 @@
-package com.fao.flashcards.cards.application.service;
+package com.fao.flashcards.ocr.application.service;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,16 +16,18 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
-import com.fao.flashcards.cards.application.port.in.FileUploadConfig;
-import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
-import com.fao.flashcards.cards.application.port.types.EntityNotFoundException;
-import com.fao.flashcards.cards.model.FileType;
+import org.springframework.validation.annotation.Validated;
+
+import com.fao.flashcards.ocr.application.port.dto.EntityNotFoundException;
+import com.fao.flashcards.ocr.application.port.in.FileUploadConfig;
+import com.fao.flashcards.ocr.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
+import com.fao.flashcards.ocr.model.FileType;
 import com.fao.flashcards.ocr.model.Project;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.ocr.model.UploadableFile;
 import com.fao.flashcards.shared.model.pagination.Page;
 import com.fao.flashcards.shared.model.pagination.PageRequest;
 
@@ -37,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  * Storage-Path-Generierung.
  */
 @Slf4j
+@Validated
 public class FileUploadService implements FileUploadInputPort {
 
     private final ProjectFileRepository projectFileRepository;
@@ -81,7 +84,7 @@ public class FileUploadService implements FileUploadInputPort {
      * Verarbeitet einen Datei-Upload für ein bestimmtes Projekt.
      */
     @Override
-    public ProjectFile uploadFile(String projectId, MultipartFileAdapter file) throws IOException {
+    public ProjectFile uploadFile(String projectId, UploadableFile file) throws IOException {
         log.info("Starte Datei-Upload für Projekt {}: {}", projectId, file.getOriginalFilename());
 
         // Projekt validieren
@@ -121,7 +124,7 @@ public class FileUploadService implements FileUploadInputPort {
     /**
      * Validiert eine hochgeladene Datei.
      */
-    private void validateFile(MultipartFileAdapter file) {
+    private void validateFile(UploadableFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Datei ist leer");
         }
@@ -162,7 +165,7 @@ public class FileUploadService implements FileUploadInputPort {
     /**
      * Bestimmt den FileType basierend auf MIME-Type und Dateiendung.
      */
-    private FileType determineFileType(MultipartFileAdapter file) {
+    private FileType determineFileType(UploadableFile file) {
         String contentType = file.getContentType();
         String extension = getFileExtension(file.getOriginalFilename()).toLowerCase();
 
@@ -220,7 +223,7 @@ public class FileUploadService implements FileUploadInputPort {
     /**
      * Speichert eine Datei physisch im Dateisystem.
      */
-    private Path saveFileToStorage(MultipartFileAdapter file, String storagePath) throws IOException {
+    private Path saveFileToStorage(UploadableFile file, String storagePath) throws IOException {
         Path targetPath = Paths.get(storagePath);
 
         // Verzeichnis erstellen falls nicht vorhanden

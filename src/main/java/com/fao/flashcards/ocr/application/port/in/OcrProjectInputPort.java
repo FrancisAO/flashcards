@@ -4,10 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import com.fao.flashcards.ocr.model.Project;
+import com.fao.flashcards.shared.model.pagination.Page;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -28,12 +27,12 @@ public interface OcrProjectInputPort {
     /**
      * Findet alle Projekte mit Paginierung.
      */
-    Page<Project> getAllProjects(Pageable pageable);
+    Page<Project> getAllProjects(PageRequest pageable);
 
     /**
      * Sucht Projekte nach Namen oder Beschreibung.
      */
-    Page<Project> searchProjects(@NotBlank String searchTerm, Pageable pageable);
+    Page<Project> searchProjects(@NotBlank String searchTerm, PageRequest pageable);
 
     /**
      * Findet Projekte nach Tags.

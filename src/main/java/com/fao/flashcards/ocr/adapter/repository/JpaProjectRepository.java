@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
 import com.fao.flashcards.ocr.model.Project;
+import com.fao.flashcards.shared.model.pagination.Page;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
 
 /**
  * Adapter der das ProjectOutputPort Interface implementiert und
@@ -106,8 +106,13 @@ public class JpaProjectRepository implements ProjectRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Project> findAllByOrderByCreatedAtDesc(Pageable pageable) {
-        return projectRepository.findAllByOrderByCreatedAtDesc(pageable);
+    public Page<Project> findAllByOrderByCreatedAtDesc(PageRequest pageRequest) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                pageRequest.getPage(),
+                pageRequest.getSize());
+        org.springframework.data.domain.Page<Project> springPage = projectRepository
+                .findAllByOrderByCreatedAtDesc(pageable);
+        return new Page<>(springPage.getContent(), pageRequest, springPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -142,8 +147,13 @@ public class JpaProjectRepository implements ProjectRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Project> searchByNameOrDescription(String searchTerm, Pageable pageable) {
-        return projectRepository.searchByNameOrDescription(searchTerm, pageable);
+    public Page<Project> searchByNameOrDescription(String searchTerm, PageRequest pageRequest) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                pageRequest.getPage(),
+                pageRequest.getSize());
+        org.springframework.data.domain.Page<Project> springPage = projectRepository
+                .searchByNameOrDescription(searchTerm, pageable);
+        return new Page<>(springPage.getContent(), pageRequest, springPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)

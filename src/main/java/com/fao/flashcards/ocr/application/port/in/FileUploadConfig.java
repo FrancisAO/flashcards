@@ -1,4 +1,4 @@
-package com.fao.flashcards.cards.application.port.in;
+package com.fao.flashcards.ocr.application.port.in;
 
 public interface FileUploadConfig {
     

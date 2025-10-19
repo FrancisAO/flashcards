@@ -1,7 +1,6 @@
 package com.fao.flashcards.ocr.application.port.in;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import com.fao.flashcards.ocr.application.OCRProcessingException;
 import com.fao.flashcards.ocr.application.service.OCRService.OCRProjectStatistics;
@@ -36,17 +35,6 @@ public interface OCRInputPort {
          * Verarbeitet mehrere Dateien als Batch per OCR mit Standard-Optionen.
          */
         List<ExtractedText> processBatch(@NotNull List<@NotBlank String> fileIds) throws OCRProcessingException;
-
-        /**
-         * Asynchrone OCR-Verarbeitung einer einzelnen Datei.
-         */
-        CompletableFuture<ExtractedText> processFileAsync(@NotBlank String fileId, @Valid OCROptions options);
-
-        /**
-         * Asynchrone Batch-OCR-Verarbeitung.
-         */
-        CompletableFuture<List<ExtractedText>> processBatchAsync(@NotNull List<@NotBlank String> fileIds,
-                        @Valid OCROptions options);
 
         /**
          * Bearbeitet den extrahierten Text.

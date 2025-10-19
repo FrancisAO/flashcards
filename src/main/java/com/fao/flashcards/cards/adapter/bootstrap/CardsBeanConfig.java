@@ -2,7 +2,6 @@ package com.fao.flashcards.cards.adapter.bootstrap;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import com.fao.flashcards.cards.adapter.ai.DirectOpenRouterAIAdapter;
 import com.fao.flashcards.cards.adapter.document.DocumentProcessingAdapter;
@@ -15,8 +14,6 @@ import com.fao.flashcards.cards.adapter.repository.JpaDocumentUploadRepository;
 import com.fao.flashcards.cards.application.port.in.CardGenerationInputPort;
 import com.fao.flashcards.cards.application.port.in.CardInputPort;
 import com.fao.flashcards.cards.application.port.in.DeckInputPort;
-import com.fao.flashcards.cards.application.port.in.FileUploadConfig;
-import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.cards.application.port.out.AICardGenerationPort;
 import com.fao.flashcards.cards.application.port.out.DocumentProcessingPort;
 import com.fao.flashcards.cards.application.port.out.repository.AIGeneratedCardRepository;
@@ -28,10 +25,9 @@ import com.fao.flashcards.cards.application.port.out.repository.DocumentUploadRe
 import com.fao.flashcards.cards.application.service.CardGenerationService;
 import com.fao.flashcards.cards.application.service.CardService;
 import com.fao.flashcards.cards.application.service.DeckService;
-import com.fao.flashcards.cards.application.service.FileUploadService;
-import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
-import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
-import com.fao.flashcards.ocr.application.port.out.ProjectRepository;
+import com.fao.flashcards.ocr.adapter.bootstrap.FileUploadConfigImpl;
+import com.fao.flashcards.ocr.application.port.in.FileUploadConfig;
+
 
 @Configuration
 public class CardsBeanConfig {
@@ -112,20 +108,6 @@ public class CardsBeanConfig {
             CardRepository cardRepository,
             DeckCardRepository deckCardRepository) {
         return new DeckService(deckRepository, cardRepository, deckCardRepository);
-    }
-
-    @Bean
-    public FileUploadService fileUploadService(
-            ProjectFileRepository projectFileRepository,
-            ProjectRepository projectRepository,
-            OcrProjectInputPort ocrProjectInputPort, FileUploadConfig fileUploadConfig) {
-        return new FileUploadService(projectFileRepository, projectRepository, ocrProjectInputPort, fileUploadConfig);
-    }
-
-    @Bean
-    @Primary
-    public FileUploadInputPort fileUploadInputPort(FileUploadService fileUploadService) {
-        return new FileUploadServiceAdapter(fileUploadService);
     }
 
     @Bean

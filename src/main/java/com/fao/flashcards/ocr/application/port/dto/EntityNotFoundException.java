@@ -1,4 +1,4 @@
-package com.fao.flashcards.cards.application.port.types;
+package com.fao.flashcards.ocr.application.port.dto;
 
 public class EntityNotFoundException extends RuntimeException {
 

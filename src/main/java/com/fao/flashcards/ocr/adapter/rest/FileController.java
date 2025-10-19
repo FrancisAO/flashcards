@@ -26,13 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
-import com.fao.flashcards.cards.application.port.dto.FileUploadResponse;
-import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
 import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
+import com.fao.flashcards.ocr.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
 import com.fao.flashcards.ocr.model.ExtractedText;
+import com.fao.flashcards.ocr.model.FileUploadResponse;
 import com.fao.flashcards.ocr.model.ProjectFile;
 import com.fao.flashcards.shared.model.pagination.Page;
 import com.fao.flashcards.shared.model.pagination.PageRequest;

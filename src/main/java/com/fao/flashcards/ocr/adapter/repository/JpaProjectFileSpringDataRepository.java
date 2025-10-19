@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.fao.flashcards.cards.model.FileType;
+import com.fao.flashcards.ocr.model.FileType;
 import com.fao.flashcards.ocr.model.Project;
 import com.fao.flashcards.ocr.model.ProjectFile;
 

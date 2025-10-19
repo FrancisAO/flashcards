@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fao.flashcards.cards.model.FileType;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 

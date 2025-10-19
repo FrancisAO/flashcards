@@ -1,14 +1,14 @@
-package com.fao.flashcards.cards.adapter.bootstrap;
+package com.fao.flashcards.ocr.adapter.bootstrap;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.springframework.validation.annotation.Validated;
 
-import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
-import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
-import com.fao.flashcards.cards.application.service.FileUploadService;
+import com.fao.flashcards.ocr.application.port.in.FileUploadInputPort;
+import com.fao.flashcards.ocr.application.service.FileUploadService;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.ocr.model.UploadableFile;
 import com.fao.flashcards.shared.model.pagination.Page;
 import com.fao.flashcards.shared.model.pagination.PageRequest;
 
@@ -25,7 +25,7 @@ public class FileUploadServiceAdapter implements FileUploadInputPort {
     }
 
     @Override
-    public ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFileAdapter file) throws IOException {
+    public ProjectFile uploadFile(@NotBlank String projectId, @NotNull UploadableFile file) throws IOException {
         return fileUploadService.uploadFile(projectId, file);
     }
 

@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fao.flashcards.cards.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.dto.CreateProjectRequest;
 import com.fao.flashcards.ocr.application.port.dto.DTOMapper;
 import com.fao.flashcards.ocr.application.port.dto.ProjectDTO;
@@ -29,9 +26,12 @@ import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
 import com.fao.flashcards.ocr.application.port.dto.ProjectStatisticsDTO;
 import com.fao.flashcards.ocr.application.port.dto.ProjectStatisticsDTO.RecentActivityDTO;
 import com.fao.flashcards.ocr.application.port.dto.UpdateProjectRequest;
+import com.fao.flashcards.ocr.application.port.in.FileUploadInputPort;
 import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
 import com.fao.flashcards.ocr.model.Project;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.shared.model.pagination.PageRequest;
+import com.fao.flashcards.shared.model.pagination.Sort;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -77,9 +77,9 @@ public class ProjectController {
         try {
             // Sorting erstellen
             Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-            Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-
-            Page<Project> projectsPage;
+            Sort sort = new Sort(List.of(new Sort.Order(direction, "")));
+            PageRequest pageable = new com.fao.flashcards.shared.model.pagination.PageRequest(page, size, sort);
+            com.fao.flashcards.shared.model.pagination.Page<Project> projectsPage;
             if (search != null && !search.trim().isEmpty()) {
                 projectsPage = projectService.searchProjects(search.trim(), pageable);
             } else {
@@ -87,19 +87,37 @@ public class ProjectController {
             }
 
             // Convert to DTOs
-            Page<ProjectDTO> projectDTOs = projectsPage.map(dtoMapper::toDTO);
+            com.fao.flashcards.shared.model.pagination.Page<ProjectDTO> projectDTOs = projectsPage
+                    .map(dtoMapper::toDTO);
+
+            // Convert to Spring Page
+            Page<ProjectDTO> springPage = toSpringPage(projectDTOs);
 
             log.debug("Returning {} projects (page {} of {})",
-                    projectDTOs.getNumberOfElements(),
-                    projectDTOs.getNumber() + 1,
-                    projectDTOs.getTotalPages());
+                    springPage.getNumberOfElements(),
+                    springPage.getNumber() + 1,
+                    springPage.getTotalPages());
 
-            return ResponseEntity.ok(projectDTOs);
+            return ResponseEntity.ok(springPage);
 
         } catch (Exception e) {
             log.error("Fehler beim Laden der Projekte", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    /**
+     * Konvertiert custom Page zu Spring Page.
+     */
+    private <T> Page<T> toSpringPage(com.fao.flashcards.shared.model.pagination.Page<T> customPage) {
+        org.springframework.data.domain.PageRequest springPageable = org.springframework.data.domain.PageRequest.of(
+                customPage.getNumber(),
+                customPage.getSize());
+
+        return new PageImpl<>(
+                customPage.getContent(),
+                springPageable,
+                customPage.getTotalElements());
     }
 
     /**
@@ -112,8 +130,9 @@ public class ProjectController {
         try {
             // Statistiken vom Service laden
             // Nutze Paginierung um Gesamtanzahl zu ermitteln
-            Pageable pageable = PageRequest.of(0, 1);
-            Page<Project> projectPage = projectService.getAllProjects(pageable);
+            PageRequest pageable = new PageRequest(0, 1);
+            com.fao.flashcards.shared.model.pagination.Page<Project> projectPage = projectService
+                    .getAllProjects(pageable);
             long totalProjects = projectPage.getTotalElements();
 
             List<String> allTags = projectService.getAllUsedTags();

@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.fao.flashcards.cards.application.port.dto.FileUploadResponse;
 import com.fao.flashcards.ocr.model.ExtractedText;
+import com.fao.flashcards.ocr.model.FileUploadResponse;
 import com.fao.flashcards.ocr.model.OCROptions;
 import com.fao.flashcards.ocr.model.OCRResult;
 import com.fao.flashcards.ocr.model.OCRStatus;

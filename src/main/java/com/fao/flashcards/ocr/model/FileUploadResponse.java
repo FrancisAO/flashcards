@@ -1,6 +1,5 @@
-package com.fao.flashcards.cards.application.port.dto;
+package com.fao.flashcards.ocr.model;
 
-import com.fao.flashcards.cards.model.FileType;
 import com.fao.flashcards.ocr.application.port.dto.ProjectFileDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

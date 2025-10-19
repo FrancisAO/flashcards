@@ -1,9 +1,9 @@
-package com.fao.flashcards.cards.adapter.bootstrap;
+package com.fao.flashcards.ocr.adapter.bootstrap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import com.fao.flashcards.cards.application.port.in.FileUploadConfig;
+import com.fao.flashcards.ocr.application.port.in.FileUploadConfig;
 
 @Configuration
 public class FileUploadConfigImpl implements FileUploadConfig {

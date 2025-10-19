@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fao.flashcards.cards.model.FileType;
+import com.fao.flashcards.ocr.model.FileType;
 import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.model.Project;
 import com.fao.flashcards.ocr.model.ProjectFile;

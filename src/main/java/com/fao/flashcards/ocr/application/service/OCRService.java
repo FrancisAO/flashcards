@@ -7,12 +7,9 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.validation.annotation.Validated;
 
-import com.fao.flashcards.cards.model.FileType;
 import com.fao.flashcards.ocr.application.OCRProcessingException;
 import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
 import com.fao.flashcards.ocr.application.port.in.OcrProjectInputPort;
@@ -22,6 +19,7 @@ import com.fao.flashcards.ocr.application.port.out.OCRResultRepository;
 import com.fao.flashcards.ocr.application.port.out.ProjectFileRepository;
 import com.fao.flashcards.ocr.model.ExtractedText;
 import com.fao.flashcards.ocr.model.ExtractionSource;
+import com.fao.flashcards.ocr.model.FileType;
 import com.fao.flashcards.ocr.model.OCROptions;
 import com.fao.flashcards.ocr.model.OCRResult;
 import com.fao.flashcards.ocr.model.OCRStatus;
@@ -43,7 +41,6 @@ public class OCRService implements OCRInputPort {
     private final OCRResultRepository ocrResultRepository;
     private final ProjectFileRepository projectFileRepository;
     private final OcrProjectInputPort projectService;
-
 
     public OCRService(OCRProcessingPort ocrProcessingPort,
             ExtractedTextRepository extractedTextRepository,
@@ -243,41 +240,6 @@ public class OCRService implements OCRInputPort {
     @Override
     public List<ExtractedText> processBatch(List<String> fileIds) throws OCRProcessingException {
         return processBatch(fileIds, OCROptions.defaultOptions());
-    }
-
-    /**
-     * Asynchrone OCR-Verarbeitung einer einzelnen Datei.
-     */
-    @Override
-    @Async
-    public CompletableFuture<ExtractedText> processFileAsync(String fileId, OCROptions options) {
-        try {
-            ExtractedText result = processFile(fileId, options);
-            return CompletableFuture.completedFuture(result);
-        } catch (Exception e) {
-            log.error("Asynchrone OCR-Verarbeitung fehlgeschlagen für Datei: {}", fileId, e);
-            CompletableFuture<ExtractedText> future = new CompletableFuture<>();
-            future.completeExceptionally(e);
-            return future;
-        }
-    }
-
-    /**
-     * Asynchrone Batch-OCR-Verarbeitung.
-     */
-    @Override
-    @Async
-    public CompletableFuture<List<ExtractedText>> processBatchAsync(List<String> fileIds,
-            OCROptions options) {
-        try {
-            List<ExtractedText> results = processBatch(fileIds, options);
-            return CompletableFuture.completedFuture(results);
-        } catch (Exception e) {
-            log.error("Asynchrone Batch-OCR-Verarbeitung fehlgeschlagen", e);
-            CompletableFuture<List<ExtractedText>> future = new CompletableFuture<>();
-            future.completeExceptionally(e);
-            return future;
-        }
     }
 
     /**

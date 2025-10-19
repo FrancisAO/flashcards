@@ -1,10 +1,10 @@
-package com.fao.flashcards.cards.application.port.in;
+package com.fao.flashcards.ocr.application.port.in;
 
 import java.io.IOException;
 import java.util.List;
 
-import com.fao.flashcards.cards.adapter.web.MultipartFileAdapter;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.ocr.model.UploadableFile;
 import com.fao.flashcards.shared.model.pagination.Page;
 import com.fao.flashcards.shared.model.pagination.PageRequest;
 
@@ -16,7 +16,7 @@ public interface FileUploadInputPort {
     /**
      * Verarbeitet einen Datei-Upload für ein bestimmtes Projekt.
      */
-    ProjectFile uploadFile(@NotBlank String projectId, @NotNull MultipartFileAdapter fileAdapter) throws IOException;
+    ProjectFile uploadFile(@NotBlank String projectId, @NotNull UploadableFile fileAdapter) throws IOException;
 
     /**
      * Löscht eine ProjectFile und die zugehörige physische Datei.
