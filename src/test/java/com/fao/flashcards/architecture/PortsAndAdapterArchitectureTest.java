@@ -54,7 +54,6 @@ public class PortsAndAdapterArchitectureTest {
                                                 "Application services should only depend on application ports, domain, and standard libraries.");
 
                 cards.check(classes);
-
         }
 
 }

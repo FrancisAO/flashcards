@@ -22,9 +22,6 @@ const Header: React.FC = () => {
           <Button color="inherit" component={RouterLink} to="/search">
             Suchen
           </Button>
-          <Button color="inherit" component={RouterLink} to="/study">
-            Lernen
-          </Button>
           <Button color="inherit" component={RouterLink} to="/projects">
             OCR-Projekte
           </Button>
