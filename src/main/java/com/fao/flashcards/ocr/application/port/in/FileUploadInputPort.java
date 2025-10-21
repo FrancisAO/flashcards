@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.fao.flashcards.ocr.model.ProjectFile;
-import com.fao.flashcards.ocr.model.UploadableFile;
+import com.fao.flashcards.shared.application.port.in.UploadableFile;
 import com.fao.flashcards.shared.model.pagination.Page;
 import com.fao.flashcards.shared.model.pagination.PageRequest;
 

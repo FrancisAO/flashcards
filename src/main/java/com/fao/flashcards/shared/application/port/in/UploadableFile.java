@@ -1,4 +1,4 @@
-package com.fao.flashcards.ocr.model;
+package com.fao.flashcards.shared.application.port.in;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,5 +1,22 @@
 package com.fao.flashcards.cards.adapter.rest;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fao.flashcards.cards.application.port.dto.AIGeneratedCardDTO;
 import com.fao.flashcards.cards.application.port.dto.AIGenerationRequestDTO;
 import com.fao.flashcards.cards.application.port.dto.CardDTO;
@@ -11,17 +28,10 @@ import com.fao.flashcards.cards.model.AIGeneratedCard;
 import com.fao.flashcards.cards.model.AIGenerationRequest;
 import com.fao.flashcards.cards.model.Card;
 import com.fao.flashcards.cards.model.DocumentUpload;
+import com.fao.flashcards.shared.adapter.MultipartFileAdapter;
+import com.fao.flashcards.shared.application.port.in.UploadableFile;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Controller für die Karteikartengenerierung.
@@ -74,7 +84,8 @@ public class CardGenerationController {
             @RequestParam("file") MultipartFile file) {
         
         try {
-            DocumentUpload uploadedDocument = cardGenerationService.uploadDocument(requestId, file);
+            UploadableFile uploadableFile = new MultipartFileAdapter(file);
+            DocumentUpload uploadedDocument = cardGenerationService.uploadDocument(requestId, uploadableFile);
             return new ResponseEntity<>(mapToDocumentUploadDTO(uploadedDocument), HttpStatus.CREATED);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();

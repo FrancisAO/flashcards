@@ -33,6 +33,7 @@ import com.fao.flashcards.ocr.application.port.in.OCRInputPort;
 import com.fao.flashcards.ocr.model.ExtractedText;
 import com.fao.flashcards.ocr.model.FileUploadResponse;
 import com.fao.flashcards.ocr.model.ProjectFile;
+import com.fao.flashcards.shared.adapter.MultipartFileAdapter;
 import com.fao.flashcards.shared.model.pagination.Page;
 import com.fao.flashcards.shared.model.pagination.PageRequest;
 

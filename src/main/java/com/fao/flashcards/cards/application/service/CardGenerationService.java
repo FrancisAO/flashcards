@@ -20,6 +20,7 @@ import com.fao.flashcards.cards.model.AIGeneratedCard;
 import com.fao.flashcards.cards.model.AIGenerationRequest;
 import com.fao.flashcards.cards.model.Card;
 import com.fao.flashcards.cards.model.DocumentUpload;
+import com.fao.flashcards.shared.application.port.in.UploadableFile;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -93,7 +94,7 @@ public class CardGenerationService implements CardGenerationInputPort {
      *                                                            Fehler auftritt
      */
     @Override
-    public DocumentUpload uploadDocument(String requestId, MultipartFile file)
+    public DocumentUpload uploadDocument(String requestId, UploadableFile file)
             throws EntityNotFoundException, IOException, DocumentProcessingPort.DocumentProcessingException {
 
         AIGenerationRequest request = generationRequestRepository.findById(requestId)
